@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <div class="container">
+        <p id="img_id" style="display : none;">{{ filename }}</p>
+        <div id="table-container"></div>
+        
+        <h1>Histogrammes de couleurs</h1>
+        <div class="histogrammes">
+            <canvas id="grayHistogram" style='width : "500px" ;height :"500px" ;'></canvas>
+        </div>
+        <div id="zoneHistograms">
+        </div>
+    </div>
+    <script>
+        const img = document.getElementById("img_id").textContent
+        console.log(img)
+        fetch(`/avance/${img}`)
+        .then(response => response.json())
+        .then(data => {
+            
+            renderTable(data)
+            const histogramGray = [data["color"]["histogram_gray"]];
+            const histogramHue = [data["color"]["histogram_hue"]];
+            console.log(histogramGray[0])
+            console.log(histogramHue[0])
+            // Création du graphique pour les niveaux de gris
+            new Chart(document.getElementById('grayHistogram'), {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 300  }, (_, i) => i + 1),
+                datasets: [
+                {
+                    label: 'Niveaux de gris',
+                    data: histogramGray[0],
+                    borderColor: 'gray',
+                    fill: false
+                },
+                {
+                    label: 'Teinte (HSV)',
+                    data: histogramHue[0],
+                    borderColor: 'blue',
+                    fill: false
+                }
+            ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                title: { display: true, text: 'Histogramme - Niveaux de gris' }
+                },
+                scales: {
+                x: { title: { display: true, text: 'Valeur' } },
+                y: { 
+                    title: { display: true, text: 'Nombre de pixels' } ,
+                    min : 0,
+                    max : 5000
+                }
+                }
+                
+            }
+            });
+
+        // 🔳 Affichage des histogrammes par zone
+        const zones = {
+        "TOP" : [data["zones"]["top"]["histogram"]],
+        "MIDDLE" :[data["zones"]["middle"]["histogram"]],
+        "BOTTLE" : [data["zones"]["bottom"]["histogram"]]
+        };
+
+        const zoneContainer = document.getElementById("zoneHistograms");
+
+        Object.entries(zones).forEach(([zoneName, histogramData], index) => {
+            console.log(histogramData[0])
+            const canvas = document.createElement("canvas");
+            canvas.id = `zoneChart${index}`;
+            canvas.style ="width : 500px"
+            zoneContainer.appendChild(canvas);
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+            labels:  Array.from({ length: 300  }, (_, i) => i + 1),
+            datasets: [{
+                label: `Zone ${zoneName}`,
+                data: histogramData[0],
+                borderColor: 'gray',
+                fill: false
+            }]
+            },
+            options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: `Histogramme zone ${zoneName}` }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Valeur' } },
+                y: { title: { display: true, text: 'Nombre de pixels' } }
+            }
+            }
+        });
+        });
+
+        });
+
+
+
+        // Fonction pour parcourir l'objet et récupérer les scalaires
+    function flattenObject(obj, prefix = "") {
+      let flat = [];
+      for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+        const value = obj[key];
+        if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+          flat = flat.concat(flattenObject(value, prefix + key + "."));
+        } else if (typeof value !== "object" && !Array.isArray(value)) {
+          flat.push({ path: prefix + key, value });
+        }
+      }
+      return flat;
+    }
+
+    // Fonction spéciale pour zones (pour afficher par zone)
+    function flattenZones(zones) {
+      let flat = [];
+      for (const zone in zones) {
+        if (!zones.hasOwnProperty(zone)) continue;
+        const values = zones[zone];
+        for (const key in values) {
+          if (!values.hasOwnProperty(key)) continue;
+          if (typeof values[key] !== "object" && !Array.isArray(values[key])) {
+            flat.push({ zone, key, value: values[key] });
+          }
+        }
+      }
+      return flat;
+    }
+
+    function renderTable(data) {
+      let html = '<table>';
+      html += `
+        <tr><th>Clé</th><th>Valeur</th></tr>
+      `;
+
+      // Basic
+      html += `<tr class="zone-title"><td colspan="2">basic</td></tr>`;
+      flattenObject(data["basic"]).forEach(row => {
+        html += `<tr><td>${row.path}</td><td>${row.value}</td></tr>`;
+      });
+
+      // Color
+      html += `<tr class="zone-title"><td colspan="2">color</td></tr>`;
+      flattenObject(data.color).forEach(row => {
+        html += `<tr><td>${row.path}</td><td>${row.value}</td></tr>`;
+      });
+
+      // Texture
+      html += `<tr class="zone-title"><td colspan="2">texture</td></tr>`;
+      flattenObject(data.texture).forEach(row => {
+        html += `<tr><td>${row.path}</td><td>${row.value}</td></tr>`;
+      });
+
+      // Shape
+      html += `<tr class="zone-title"><td colspan="2">shape</td></tr>`;
+      flattenObject(data.shape).forEach(row => {
+        html += `<tr><td>${row.path}</td><td>${row.value}</td></tr>`;
+      });
+
+      // Zones
+      html += `<tr class="zone-title"><td colspan="2">zones</td></tr>`;
+      flattenZones(data.zones).forEach(row => {
+        html += `<tr><td>zones.${row.zone}.${row.key}</td><td>${row.value}</td></tr>`;
+      });
+      html += '</table>';
+      document.getElementById('table-container').innerHTML = html;
+    }
+
+    </script>
+
+    <style>
+    body {
+        background: linear-gradient(135deg, #f3f8fd 0%, #e8f0fa 100%);
+        margin: 0;
+        color: #222;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1280px;
+        margin: 32px auto;
+        padding: 24px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px 0 rgba(60, 72, 88, 0.09); 
+    }
+    h1{
+        text-align : center;
+    }
+
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+    th { background: #e7effa; }
+    tr:nth-child(even) { background: #f3f7fb; }
+    .zone-title { background: #d7e8fa; font-weight: bold; }
+    
+    #zoneHistograms{
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+
+</body>
+</html>

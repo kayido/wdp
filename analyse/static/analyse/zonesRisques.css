@@ -1,0 +1,96 @@
+:root {
+    --main-bg: linear-gradient(120deg, #f3f8fd 0%, #e8f7fd 50%, #e5f6eb 100%);
+    --card-bg: #fff;
+    --gray: #6b7d93;
+    --border: #e3eaf3;
+    --blue: #2762e3;
+    --btn-dark: #232c3b;
+    --btn-dark-hover: #1a2231;
+    --btn-border: #e4e6e9;
+    --red: #e94553;
+    --green: #4bb85e;
+}
+html, body {
+    min-height: 100%;
+    background: var(--main-bg);
+    margin: 0;
+    color: #222;
+}
+.container {
+    max-width: 600px;
+    margin: 36px auto 0 auto;
+    padding: 0 8px;
+}
+form{
+    background: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 12px 0 rgba(60,72,88,0.06);
+    border: 1.5px solid var(--border);
+    padding: 34px 34px 26px 34px;
+    margin-bottom: 32px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+form h2{
+    text-align: center;
+}
+
+form p label {
+    font-weight: 500;
+    color: #223;
+    margin-bottom: 5px;
+    display: block;
+    font-size: 1.07rem;
+}
+.form p {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+form p input{
+    padding: 11px 13px;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    font-size: 1.06rem;
+    font-family: inherit;
+    background: #f6f9fd;
+    color: #222;
+    transition: border 0.18s;
+    outline: none;
+    width: 100%;
+}
+form p input:focus{
+    border: 1.5px solid var(--blue);
+    background: #f2f8ff;
+}
+
+.btn{
+    text-align: center;
+    gap: 8px;
+    padding: 0 19px;
+    height: 44px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    border-radius: 7px;
+    border: 1.5px solid var(--btn-border);
+    background: var(--card-bg);
+    color: #232c3b;
+    cursor: pointer;
+    transition: background 0.13s, border 0.13s;
+    box-shadow: 0 1px 1.5px 0 rgba(60,72,88,0.03);
+    outline: none;
+}
+@media (max-width: 600px) {
+    .form-card { padding: 18px 3vw 12px 3vw; }
+    .page-container { padding: 0 1vw; }
+}
+
+#suggestions { 
+    background: #fff; 
+    border: 1px solid #ccc; 
+    z-index: 999; position: absolute; 
+    width: 100%; }
+#suggestions li { cursor: pointer; padding: 3px 6px; }
+#suggestions li:hover { background: #eee; }

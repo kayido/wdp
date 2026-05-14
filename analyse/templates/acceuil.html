@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRASHERO - Accueil</title>
+    <link rel="stylesheet" href="{% static 'analyse/acceuil.css' %}">
+    <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
+</head>
+<body>
+
+{% include "components/navbar.html" %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <h1 class="hero-title">TRASHERO</h1>
+    <p class="hero-subtitle">Plateforme intelligente de suivi des poubelles par image pour la prévention des dépôts sauvages. Une solution innovante s'appuyant sur l'IA pour anticiper et prévenir les problèmes de déchets urbains.</p>
+    <div>
+        <a href="/upload" class="cta-button">Commencer l'analyse →</a>
+        <a href="/dashboard" class="cta-button">Voir le tableau de bord</a>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="stat-card">
+        <div class="stat-number" id="total-images">--</div>
+        <div class="stat-label">Images Analysées</div>
+        <div style="color: #00A67E" id="total-evolution">--</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="precision-ia">--</div>
+        <div class="stat-label">Poubelles Pleines</div>
+        <div style="color: #00A67E" id="pleines-evolution">--</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="zones-surveillees">--</div>
+        <div class="stat-label">Poubelles Vides</div>
+        <div style="color: #00A67E" id="vides-evolution">--</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="incidents-reduction">--</div>
+        <div class="stat-label">Zones à Risque</div>
+        <div style="color: #00A67E" id="risques-evolution">--</div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Une solution complète pour la gestion urbaine</h2>
+    <p style="text-align: center; margin-bottom: 3rem;">Découvrez comment notre plateforme révolutionne la prévention des dépôts sauvages grâce à l'intelligence artificielle et l'analyse prédictive.</p>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📤</div>
+            <h3 class="feature-title">Upload Intelligent</h3>
+            <p class="feature-description">Interface intuitive pour télécharger et annoter vos images de poubelles</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">IA Prédictive</h3>
+            <p class="feature-description">Classification automatique basée sur des règles et caractéristiques visuelles</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3 class="feature-title">Analytics Avancés</h3>
+            <p class="feature-description">Tableaux de bord et visualisations en temps réel pour le suivi des performances</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🗺️</div>
+            <h3 class="feature-title">Cartographie Dynamique</h3>
+            <p class="feature-description">Visualisation géographique des zones à risque avec alertes préventives</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">Sécurité des Données</h3>
+            <p class="feature-description">Protection et gestion responsable des données collectées</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🌱</div>
+            <h3 class="feature-title">Green IT</h3>
+            <p class="feature-description">Approche éco-responsable avec optimisation énergétique</p>
+        </div>
+    </div>
+</section>
+
+<!-- Process Section -->
+<section class="process-section">
+    <h2 class="process-title">Comment ça fonctionne</h2>
+    <p style="text-align: center; margin-bottom: 3rem;">Un processus simple et efficace en 4 étapes</p>
+    
+    <div class="process-steps">
+        <div class="process-step">
+            <div class="step-number">01</div>
+            <div class="step-icon">📤</div>
+            <h3 class="step-title">Collecte</h3>
+            <p class="step-description">Upload d'images via citoyens, agents ou caméras embarquées</p>
+        </div>
+        <div class="process-step">
+            <div class="step-number">02</div>
+            <div class="step-icon">🔍</div>
+            <h3 class="step-title">Analyse</h3>
+            <p class="step-description">Extraction automatique des caractéristiques visuelles</p>
+        </div>
+        <div class="process-step">
+            <div class="step-number">03</div>
+            <div class="step-icon">✓</div>
+            <h3 class="step-title">Classification</h3>
+            <p class="step-description">IA détermine l'état (pleine/vide) selon des règles prédéfinies</p>
+        </div>
+        <div class="process-step">
+            <div class="step-number">04</div>
+            <div class="step-icon">🛡️</div>
+            <h3 class="step-title">Action</h3>
+            <p class="step-description">Alertes et interventions préventives sur les zones à risque</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <h2>Prêt à révolutionner la gestion urbaine ?</h2>
+    <p>Rejoignez le mouvement pour des villes plus propres et plus intelligentes</p>
+    <a href="/upload" class="secondary-button">Commencer maintenant →</a>
+</section>
+
+<script>
+// Fonction pour charger les statistiques
+async function loadStats() {
+    try {
+        // Charger les stats globales
+        const statsResponse = await fetch('/api/stats-globales/');
+        const stats = await statsResponse.json();
+        
+        document.getElementById('total-images').textContent = stats.total;
+        document.getElementById('precision-ia').textContent = stats.pleines;
+        document.getElementById('zones-surveillees').textContent = stats.videes;
+
+        // Charger les zones à risque
+        const risquesResponse = await fetch('/api/risques/');
+        const risques = await risquesResponse.json();
+        document.getElementById('incidents-reduction').textContent = risques.length;
+
+        // Calculer les évolutions (à adapter selon vos besoins)
+        const totalEvolution = ((stats.total - stats.total * 0.9) / stats.total * 100).toFixed(1);
+        document.getElementById('total-evolution').textContent = `+${totalEvolution}%`;
+        
+        const pleinesEvolution = ((stats.pleines - stats.pleines * 0.95) / stats.pleines * 100).toFixed(1);
+        document.getElementById('pleines-evolution').textContent = `+${pleinesEvolution}%`;
+        
+        const videsEvolution = ((stats.videes - stats.videes * 0.92) / stats.videes * 100).toFixed(1);
+        document.getElementById('vides-evolution').textContent = `+${videsEvolution}%`;
+        
+        const risquesEvolution = ((risques.length - risques.length * 0.85) / risques.length * 100).toFixed(1);
+        document.getElementById('risques-evolution').textContent = `+${risquesEvolution}%`;
+    } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+    }
+}
+
+// Charger les stats au chargement de la page
+document.addEventListener('DOMContentLoaded', loadStats);
+</script>
+
+</body>
+</html>

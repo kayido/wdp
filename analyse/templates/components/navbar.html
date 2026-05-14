@@ -1,0 +1,24 @@
+{% load static %}
+
+<header>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <img src="{% static 'images/logo.png' %}" alt="Logo Trashero" style="height: 50px;">
+    <div>
+      <h1>TRASHERO</h1>
+      <p>Plateforme intelligente de suivi des poubelles</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <a href="/">Accueil</a>
+  <a href="/upload">Upload Images</a>
+  <a href="/galerie">Galerie</a>
+  <a href="/dashboard">Tableau de Bord</a>
+  <a href="/cartographie">Cartographie</a>
+  {% comment %} <a href="/parametres">Paramètres</a> {% endcomment %}
+  <a href="/classification_rule">Régle de classification</a>
+</nav>
+
+</body>
+</html>

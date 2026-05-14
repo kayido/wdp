@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <title>Upload</title>
+  <link rel="stylesheet" href="{% static "analyse/galerie.css" %}"/>
+</head>
+<body>
+  <h1>Upload Image</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px;">
+  Envoyer
+</button>
+  </form>
+</body>
+</html>

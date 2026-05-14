@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <link rel="stylesheet" href="{% static 'analyse/index.css' %}">
+  <link rel="stylesheet" href="{% static "analyse/navbar.css" %}">
+
+{% include "components/navbar.html" %}
+
+<section>
+  <h2>Upload d'Images</h2>
+  <p>Téléchargez des images de poubelles pour analyse automatique et annotation</p>
+
+  {% if message %}
+    <div class="success">{{ message }}</div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div class="search-container">
+        <input id="search" class="search-box" type="text" placeholder="Rechercher une adresse..." autocomplete="off" name="adresse"/>
+        <div id="suggestions" class="autocomplete-suggestions"></div>
+    </div>
+    <div class="postion" style="display :none;">
+      <input type="text" id="lat" name="lat">
+      <input type="text" id="long" name="long">
+    </div>
+   
+    <button type="submit">Envoyer mon image</button>
+  </form>
+
+  <div class="info">Formats acceptés : JPG, PNG, WEBP (max 10MB)</div>
+  <div id="preview"></div>
+</section>  
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{% static "js/index.js" %}"></script>
+</body>
+</html>

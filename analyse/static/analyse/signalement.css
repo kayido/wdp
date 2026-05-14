@@ -1,0 +1,107 @@
+:root {
+    --main-bg: linear-gradient(120deg, #f3f8fd 0%, #e8f7fd 50%, #e5f6eb 100%);
+    --card-bg: #fff;
+    --gray: #6b7d93;
+    --border: #e3eaf3;
+    --blue: #2762e3;
+    --btn-dark: #232c3b;
+    --btn-dark-hover: #1a2231;
+    --btn-border: #e4e6e9;
+    --red: #e94553;
+    --green: #4bb85e;
+}
+html, body {
+    min-height: 100%;
+    background: var(--main-bg);
+    margin: 0;
+    color: #222;
+}
+body {
+    margin: 0;
+    padding: 0 0 50px 0;
+}
+.page-container {
+    max-width: 1200px;
+    margin: 30px auto 0 auto;
+    padding: 0 16px;
+}
+
+/* Règles configurées */
+.rules-section-title {
+    font-size: 1.27rem;
+    font-weight: 600;
+    margin-bottom: 17px;
+    margin-top: 16px;
+    color: #243150;
+}
+.rules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.rule-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 1px 8px 0 rgba(60,72,88,0.05);
+    border: 1.5px solid var(--border);
+    padding: 24px 26px 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    min-width: 0;
+}
+.rule-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.rule-title {
+    font-size: 1.11rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #233;
+}
+.rule-details {
+    font-size: 1.01rem;
+    color: #444;
+    line-height: 1.7;
+}
+.rule-details .plein {color: var(--red);}
+.rule-details .vide {color: var(--green);}
+.rule-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: 10px;
+    min-width: 0;
+}
+/* Switch style */
+
+/* Trash icon button */
+.act-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 19px;
+    height: 44px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    border-radius: 7px;
+    border: 1.5px solid var(--btn-border);
+    background: var(--card-bg);
+    color: #232c3b;
+    cursor: pointer;
+    transition: background 0.13s, border 0.13s;
+    box-shadow: 0 1px 1.5px 0 rgba(60,72,88,0.03);
+    outline: none;
+}
+.delete-btn:hover {
+    background: #f5eaea;
+}
+@media (max-width: 700px) {
+    .header-card { padding: 18px 5vw 15px 4vw; }
+    .page-container { padding: 0 2vw; }
+    .rule-card { flex-direction: column; gap: 10px;}
+    .header-row, .header-actions { flex-direction: column; gap: 8px;}
+    .header-count { right: 10vw; }
+}

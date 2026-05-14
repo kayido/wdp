@@ -1,0 +1,61 @@
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{% static "analyse/dashboard.css" %}">
+  <link rel="stylesheet" href="{% static "analyse/navbar.css" %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  {% include "components/navbar.html" %}
+
+  <div class="page-container">
+    <div class="status-card">
+      <div class="status-blue">
+        <h3>Total Images</h3>
+        <p>0</p>
+      </div>
+      <div class="status-red">
+        <h3>Poubelles Pleines</h3>
+        <p>0</p>
+      </div>
+      <div class="status-green">
+        <h3>Poubelles Vidées</h3>
+        <p>0</p>
+      </div>
+      <div class="status-orange">
+        <h3>Zones à Risque</h3>
+        <p>0</p>
+      </div>
+    </div>
+
+    <div class="dashboard">
+      <div class="card">
+        <div class="card-header">Répartition des États</div>
+        <div class="chart"><canvas id="pieChart" width="300" height="300"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header">Évolution Hebdomadaire</div>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-header">Tendance Horaire</div>
+        <canvas id="lineChart"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-header">Zones à Risque</div>
+        <canvas id="barChartVertical"></canvas>
+      </div>
+    </div>
+
+    <div class="alerts">
+      {% comment %} <div class="alert alert-danger">Débordement détecté - Place de la République</div>
+      <div class="alert alert-warning">Poubelle 80% pleine - Avenue des Champs</div>
+      <div class="alert alert-info">Nouvelle zone de collecte identifiée</div> {% endcomment %}
+    </div>
+  </div>
+<script src="{% static "js/dashboard.js" %} "> </script>
+</body>
+</html>

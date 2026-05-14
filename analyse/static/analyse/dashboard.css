@@ -1,0 +1,119 @@
+:root {
+    --main-bg: linear-gradient(120deg, #f3f8fd 0%, #e8f7fd 50%, #e5f6eb 100%);
+    --card-bg: #fff;
+    --gray: #6b7d93;
+    --border: #e3eaf3;
+    --blue: #2762e3;
+    --btn-dark: #232c3b;
+    --btn-dark-hover: #1a2231;
+    --btn-border: #e4e6e9;
+    --red: #e94553;
+    --green: #4bb85e;
+}
+body {
+    margin: 0;
+    padding: 0 0 50px 0;
+    background: linear-gradient(135deg, #f3f8fd 0%, #e8f0fa 100%);
+    min-height: 100vh;
+}
+
+.page-container{
+    display: flex;
+    margin-top: 20px;
+    max-width: 1200px;
+    margin: 30px auto 0 auto;
+    padding: 0 16px;
+    flex-direction: column;
+    gap: 15px;
+    background: linear-gradient(135deg, #f3f8fd 0%, #e8f0fa 100%);
+    font-size: 1rem;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    background-color: var(--main-bg);
+}
+
+.status-card{
+    background: var(--main-bg); 
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.card {
+    background: white; 
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.card-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.card .chart {
+    width: 300px;
+    height: 300px;
+    margin: auto;
+}
+
+.status-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-card div {
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    width: calc(80%/4);
+
+}
+.status-blue { background: #007bff; }
+.status-red { background: #dc3545; }
+.status-green { background: #28a745; }
+.status-orange { background: #fd7e14; }
+.alerts {
+    border: 1px solid #ffc107;
+    background: #fff3cd;
+    border-radius: 8px;
+    padding: 15px;
+}
+.alert {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+.alert:last-child {
+    margin-bottom: 0;
+}
+.alert-danger { background: #f8d7da; color: #721c24; } 
+.alert-warning { background: #fff3cd; color: #856404; } 
+.alert-info { background: #d1ecf1; color: #0c5460; }   
+
+.badge-faible {
+  background-color: green;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+.badge-moyen {
+  background-color: orange;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+.badge-élevé {
+  background-color: red;
+  color: white;
+  padding: 3px 6px;
+  border-radius: 5px;
+} 
+

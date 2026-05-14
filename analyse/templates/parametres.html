@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRASHERO - Paramètres</title>
+    <link rel="stylesheet" href="{% static 'analyse/parametres.css' %}">
+    <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    {% include "components/navbar.html" %}
+    
+    <div class="container">
+        <h1>Paramètres</h1>
+        <p class="subtitle">Configurez votre plateforme selon vos besoins</p>
+
+        <!-- Section Notifications -->
+        <div class="section-card">
+            <div class="section-header">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/>
+                </svg>
+                <div>
+                    <h2 class="section-title">Notifications</h2>
+                    <p class="section-description">Recevoir des notifications pour les zones à risque</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Seuil d'alerte (%)</span>
+                </div>
+                <input type="range" class="slider" min="0" max="100" value="75">
+                <p class="section-description">Déclencher une alerte quand 75% des poubelles sont pleines</p>
+            </div>
+        </div>
+
+        <!-- Section Intelligence Artificielle -->
+        <div class="section-card">
+            <div class="section-header">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                </svg>
+                <div>
+                    <h2 class="section-title">Intelligence Artificielle</h2>
+                    <p class="section-description">Utiliser l'IA pour classifier automatiquement les images</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="rules-box">
+                <h3>Règles de classification actuelles</h3>
+                <ul class="rules-list">
+                    <li>Si couleur moyenne < 100 ET taille > 2MB → Pleine</li>
+                    <li>Si contraste élevé ET contours nets → Vide</li>
+                    <li>Historique de localisation pris en compte</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section Gestion des Données -->
+        <div class="section-card">
+            <div class="section-header">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+                    <path d="M12 6v12"/>
+                </svg>
+                <div>
+                    <h2 class="section-title">Gestion des Données</h2>
+                    <p class="section-description">Gérez la rétention et le stockage des données</p>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Durée de rétention (jours)</span>
+                </div>
+                <input type="range" class="slider" min="0" max="90" value="30">
+                <p class="section-description">Les données seront supprimées après 30 jours</p>
+            </div>
+
+            <div class="stats-container">
+                <h3 class="stats-title">Statistiques de stockage</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        Images stockées: <span class="stat-value">1,247</span>
+                    </div>
+                    <div class="stat-item">
+                        Espace utilisé: <span class="stat-value">2.3 GB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Approche Green IT -->
+        <div class="section-card">
+            <div class="section-header">
+                <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 21a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12a4 4 0 0 1-4 4h-6z"/>
+                    <path d="M7 3.5V7"/>
+                </svg>
+                <div>
+                    <h2 class="section-title">Approche Green IT</h2>
+                    <p class="section-description">Optimiser la consommation énergétique</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="optimizations-box">
+                <h3>Optimisations actives</h3>
+                <ul class="rules-list">
+                    <li>Compression automatique des images</li>
+                    <li>Traitement asynchrone pour réduire la charge serveur</li>
+                    <li>Cache intelligent pour minimiser les requêtes</li>
+                    <li>Suppression automatique des données anciennes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="button-group">
+            <button class="btn btn-primary">Sauvegarder les paramètres</button>
+            <button class="btn btn-secondary">Réinitialiser par défaut</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alertSlider = document.querySelector('input[type="range"]');
+            const alertDescription = document.querySelector('.slider-container .section-description');
+            
+            alertSlider.addEventListener('input', function() {
+                alertDescription.textContent = `Déclencher une alerte quand ${this.value}% des poubelles sont pleines`;
+            });
+        });
+    </script>
+</body>
+</html> 

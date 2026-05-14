@@ -1,0 +1,60 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static "analyse/classification.css" %}">
+    <link rel="stylesheet" href="{% static "analyse/navbar.css" %}">
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+</head>
+<body>
+{% include "components/navbar.html" %}
+</head>
+<body>
+  <div class="page-container">
+    <div class="header-card">
+      <div class="header-row">
+        <div class="header-title-row">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.35 2.4a1 1 0 0 0-.7 0l-6.5 2.5A1 1 0 0 0 2 5.8v2.07a8 8 0 1 0 16 0V5.8a1 1 0 0 0-.65-.9l-6.5-2.5ZM10 4.03l6 2.3v1.54a6 6 0 1 1-12 0V6.33l6-2.3Zm0 3.72a1 1 0 0 0-1 1v2.25a1 1 0 0 0 .55.9l2 1a1 1 0 1 0 .9-1.8l-1.45-.73V8.75a1 1 0 0 0-1-1Z"/></svg>
+          <div class="header-texts">
+            <h1>Règles de Classification</h1>
+            <p>Configurez les règles conditionnelles pour la classification automatique des images</p>
+          </div>
+        </div>
+        <span class="header-count">{{ rules.count }} règle(s) active(s)</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn primary">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H6a1 1 0 0 1 0-2h3V6a1 1 0 0 1 1-1Z"/></svg>
+         <a href="/form_rule" style="text-decoration :none; color :#fff;"> Nouvelle Règle <a>
+        </button>
+        <button class="btn">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4.5 2.75A.75.75 0 0 1 5.25 2h1.5a.75.75 0 0 1 .53.22l5.5 5.5a.75.75 0 0 1 0 1.06l-5.5 5.5a.75.75 0 0 1-1.28-.53v-1.5H3.75A.75.75 0 0 1 3 11.25v-2.5A.75.75 0 0 1 3.75 8h1.5V5.25a.75.75 0 0 1 .75-.75Z"/></svg>
+          <a href="/tester"> Tester le Modèle </a>
+        </button>
+      </div>
+    </div>
+    <div>
+      <div class="rules-section-title">Règles Configurées</div>
+      <div class="rules-list">
+        {% for rule in rules  %}
+          <div class="rule-card">
+            <div class="rule-info">
+              <div class="rule-title">{{ rule }}</div>
+              <div class="rule-details">
+                active: {{ rule.active}}
+              </div>
+            </div>
+            <div class="rule-actions">
+              <button class="active-btn" title="Activer">
+                <a href="/activer/{{ rule.id }}">Activer</a>
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

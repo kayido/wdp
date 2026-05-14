@@ -1,0 +1,62 @@
+import json
+
+def classification_par_regles(image_obj):
+    # Caractéristiques de base
+    r = image_obj.r_moyen or 0
+    g = image_obj.v_moyen or 0
+    b = image_obj.b_moyen or 0
+    couleur_moyenne = (r + g + b) / 3
+    luminance = image_obj.luminance_moyenne or 0
+    contraste = image_obj.contraste or 0
+    taille = image_obj.taille_ko or 0
+    largeur = image_obj.largeur or 0
+    hauteur = image_obj.hauteur or 0
+    has_contours = image_obj.has_contours or False
+
+    # Histogramme : pourcentage de pixels sombres
+    try:
+        hist_data = json.loads(image_obj.histogramme or '[]')
+        total_pixels = sum(hist_data) or 1
+        sombre_pct = sum(hist_data[:50]) / total_pixels * 100
+    except:
+        sombre_pct = 0
+
+    # Règle de correction explicite pour image vide mais bruitée
+    if couleur_moyenne > 110 and luminance > 110 and taille < 150:
+        return 'vide'
+
+    # Score pondéré
+    score = 0
+    score += 2 if has_contours else 0
+    score += 2 if sombre_pct > 40 else 0
+    score += 1 if taille > 500 else 0
+    score += 1 if couleur_moyenne < 100 else 0
+    score += 1 if luminance < 100 else 0
+    score += 1 if contraste > 50 else 0
+    score += 1 if largeur > 300 and hauteur > 300 else 0
+
+    if sombre_pct > 50 and contraste > 200:
+        score += 1
+
+    # Affichage debug (facultatif)
+    print("Nom :", image_obj.nom_fichier)
+    print("Taille:", taille)
+    print("Couleur moyenne:", couleur_moyenne)
+    print("Luminance:", luminance)
+    print("Contraste:", contraste)
+    print("Contours:", has_contours)
+    print("Sombre %:", sombre_pct)
+    print("Score pondéré:", score)
+
+    # Seuil : 5 points minimum pour être classée comme pleine
+    return 'pleine' if score >= 5 else 'vide'
+
+# from .models import ClassificationRule
+
+# def classification_par_regles(image_obj):
+#     # Charger la dernière règle (ou valeurs par défaut)
+#     try:
+#         regle = ClassificationRule.objects.latest('date_modification')
+#     except:
+#         regle = ClassificationRule()  # valeurs par défaut
+

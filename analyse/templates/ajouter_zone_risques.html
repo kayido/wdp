@@ -1,0 +1,73 @@
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un Signalement</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static "analyse/zonesRisques.css" %}"
+</head>
+<body>
+    <div class="container">
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h2>Ajouter une Zone à surveillez</h2>
+            {{ form.as_p }}
+            <ul id="suggestions" style="display:none;"></ul>
+            <button type="submit" class="btn">Enregistrer</button>
+        </form>
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+    // On attend que le DOM soit chargé
+    document.addEventListener('DOMContentLoaded', function() {
+        const adresseInput = document.querySelector('input[name="adresse"]');
+        const suggestionsBox = document.getElementById('suggestions');
+        const longitudeInput = document.querySelector('input[name="longitude"]')
+        const latitudeInput = document.querySelector('input[name="latitude"]')
+
+        longitudeInput.type="text"
+        latitudeInput.type="text"
+        adresseInput.addEventListener('input', async function() {
+            const query = adresseInput.value;
+            if (query.length > 10) {
+                // Appel à Nominatim (OpenStreetMap) pour autocomplétion
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsBox.innerHTML = "";
+                        if (data.length > 0) {
+                            suggestionsBox.style.display = "block";
+                            data.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = item.display_name;
+                                li.dataset.lat = item.lat;
+                                li.dataset.lon = item.lon;
+                                li.onclick = function() {
+                                    adresseInput.value = item.display_name;
+                                    document.querySelector('input[name="latitude"]').value = item.lat;
+                                    document.querySelector('input[name="longitude"]').value = item.lon;
+                                    suggestionsBox.style.display = "none";
+                                };
+                                suggestionsBox.appendChild(li);
+                            });
+                        } else {
+                            suggestionsBox.style.display = "none";
+                        }
+                    });
+            } else {
+                suggestionsBox.style.display = "none";
+            }
+        });
+        // Fermer suggestions si clic ailleurs
+        document.addEventListener('click', function(event) {
+            if (!adresseInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+                suggestionsBox.style.display = "none";
+            }
+        });
+    });
+    </script>
+</body>
+</html>

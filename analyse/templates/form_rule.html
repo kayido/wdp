@@ -1,0 +1,30 @@
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nouvelle Règle de Classification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'analyse/form_rule.css' %}">
+</head>
+<body>
+  <div class="page-container">
+    <div class="form-card">
+      <div class="form-title-row">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.35 2.4a1 1 0 0 0-.7 0l-6.5 2.5A1 1 0 0 0 2 5.8v2.07a8 8 0 1 0 16 0V5.8a1 1 0 0 0-.65-.9l-6.5-2.5ZM10 4.03l6 2.3v1.54a6 6 0 1 1-12 0V6.33l6-2.3Zm0 3.72a1 1 0 0 0-1 1v2.25a1 1 0 0 0 .55.9l2 1a1 1 0 1 0 .9-1.8l-1.45-.73V8.75a1 1 0 0 0-1-1Z"/></svg>
+        <span class="form-title">Créer une Règle de Classification</span>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        
+        {{form.as_p}}
+        
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Sauvegarder la règle</button>
+          <button type="reset" class="btn">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
