@@ -55,7 +55,7 @@ fetch('/histogrammes_uploads/')
 
 
 
-fetch('http://127.0.0.1:8000/zone_5/')
+fetch('/zone_5/')
 .then(response => response.json())
 .then(data => {
     console.log(data)

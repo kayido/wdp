@@ -283,7 +283,7 @@ def form_rule_view(request):
 
     if request.method == "POST" :
         form = ClassificationDefineForm(request.POST)
-        if form.is_valid :
+        if form.is_valid():
             form.save()
 
         redirect("classification_rule")

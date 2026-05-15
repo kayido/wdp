@@ -1,4 +1,4 @@
-fetch(`http://127.0.0.1:8000/getZones/`)
+fetch(`/getZones/`)
 .then(res => res.json())
 .then(data => {
     console.log(data)
@@ -35,7 +35,7 @@ fetch(`http://127.0.0.1:8000/getZones/`)
 })
 
 
-fetch(`http://127.0.0.1:8000/zone_5/`)
+fetch(`/zone_5/`)
 .then(res => res.json())
 .then(data => {
     console.log(data)
@@ -94,7 +94,7 @@ function initCart(){
     }).addTo(map);
 
         
-    fetch(`http://127.0.0.1:8000/signalements_items/`)
+    fetch(`/signalements_items/`)
     .then(res => res.json())
     .then(data => {
         // console.log(data)
@@ -177,7 +177,7 @@ function mapperRed(points, map){
 }
 /******************************************************* */
 
-fetch(`http://127.0.0.1:8000/signalements_items/`)
+fetch(`/signalements_items/`)
 .then(res => res.json())
 .then(data => {
     // console.log(data)
@@ -202,7 +202,7 @@ function CartographierZoneRisque(){
         maxZoom: 18
     }).addTo(map2); 
 
-    fetch(`http://127.0.0.1:8000/zone_5/`)
+    fetch(`/zone_5/`)
     .then(res => res.json())
     .then(data => {
         let points = []
