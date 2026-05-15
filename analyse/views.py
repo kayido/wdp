@@ -286,7 +286,7 @@ def form_rule_view(request):
         if form.is_valid():
             form.save()
 
-        redirect("classification_rule")
+        return redirect("classification_rule")
 
     return render(request, 'form_rule.html', context={"form" : form})
 

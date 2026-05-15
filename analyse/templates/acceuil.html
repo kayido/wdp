@@ -138,7 +138,7 @@ async function loadStats() {
         document.getElementById('zones-surveillees').textContent = stats.videes;
 
         // Charger les zones à risque
-        const risquesResponse = await fetch('/api/risques/');
+        const risquesResponse = await fetch('/zone_5/');
         const risques = await risquesResponse.json();
         document.getElementById('incidents-reduction').textContent = risques.length;
 
