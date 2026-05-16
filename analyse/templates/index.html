@@ -1,39 +1,70 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signaler une poubelle - TRASHERO</title>
   <link rel="stylesheet" href="{% static 'analyse/index.css' %}">
-  <link rel="stylesheet" href="{% static "analyse/navbar.css" %}">
+  <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
+</head>
+<body>
 
 {% include "components/navbar.html" %}
 
-<section>
-  <h2>Upload d'Images</h2>
-  <p>Téléchargez des images de poubelles pour analyse automatique et annotation</p>
+<section class="report-section">
+  <div class="report-heading">
+    <p class="report-kicker">Signalement citoyen</p>
+    <h2>Signaler une poubelle</h2>
+    <p>Ajoutez une photo, confirmez l'adresse, puis envoyez le signalement. L'annotation reste réservée aux administrateurs.</p>
+  </div>
 
   {% if message %}
     <div class="success">{{ message }}</div>
   {% endif %}
 
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" id="report-form">
     {% csrf_token %}
-    {{ form.as_p }}
 
-    <div class="search-container">
-        <input id="search" class="search-box" type="text" placeholder="Rechercher une adresse..." autocomplete="off" name="adresse"/>
+    <div class="form-step">
+      <div class="step-label">1. Photo</div>
+      {{ form.image }}
+      <label for="{{ form.image.id_for_label }}" class="upload-dropzone">
+        <span class="upload-icon">+</span>
+        <strong>Ajouter une photo</strong>
+        <small>Cliquez pour choisir une image</small>
+      </label>
+      {{ form.image.errors }}
+      <div id="preview" class="image-preview"></div>
+      <div class="info">Formats acceptés : JPG, PNG, WEBP (max 10MB)</div>
+    </div>
+
+    <div class="form-step">
+      <div class="step-label">2. Localisation</div>
+      <p class="field-help">Choisissez une suggestion ou utilisez votre position actuelle pour fiabiliser l'adresse.</p>
+      <div class="location-actions">
+        <button type="button" id="use-location" class="secondary-action">Utiliser ma position actuelle</button>
+        <span id="location-status" class="location-status">Adresse non confirmée</span>
+      </div>
+      <div class="search-container">
+        <input id="search" class="search-box" type="text" placeholder="Ex : Avenue de la République" autocomplete="off" name="adresse"/>
         <div id="suggestions" class="autocomplete-suggestions"></div>
+      </div>
+      <div class="position" style="display:none;">
+        <input type="text" id="lat" name="lat">
+        <input type="text" id="long" name="long">
+      </div>
     </div>
-    <div class="postion" style="display :none;">
-      <input type="text" id="lat" name="lat">
-      <input type="text" id="long" name="long">
-    </div>
-   
-    <button type="submit">Envoyer mon image</button>
-  </form>
 
-  <div class="info">Formats acceptés : JPG, PNG, WEBP (max 10MB)</div>
-  <div id="preview"></div>
-</section>  
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="{% static "js/index.js" %}"></script>
+    <div class="form-step">
+      <div class="step-label">3. Détail optionnel</div>
+      <textarea name="description" rows="4" placeholder="Commentaire optionnel : état observé, repère, urgence..."></textarea>
+    </div>
+
+    <button type="submit" id="submit-report">Envoyer le signalement</button>
+  </form>
+</section>
+
+<script src="{% static 'js/index.js' %}"></script>
 </body>
 </html>

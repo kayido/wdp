@@ -7,7 +7,8 @@ Le projet permet d'uploader des images, d'extraire automatiquement des caractér
 ## Objectifs
 
 - Centraliser des images de poubelles signalées.
-- Annoter ou corriger l'état des poubelles.
+- Séparer les usages entre collecte terrain et administration.
+- Annoter ou corriger l'état des poubelles côté administrateur.
 - Extraire des caractéristiques visuelles simples : taille du fichier, dimensions, couleur moyenne, luminance, contraste, histogrammes et contours.
 - Classifier les images avec une logique de règles configurable.
 - Visualiser les statistiques dans un dashboard.
@@ -55,45 +56,145 @@ Puis ouvrir :
 http://127.0.0.1:8000/
 ```
 
+## Rôles et accès
+
+Le projet utilise les droits standards Django pour séparer les usages :
+
+- utilisateur lambda : accès à l'accueil et au formulaire de signalement ;
+- administrateur/superuser : accès à toutes les pages de pilotage ;
+- staff avec permissions fines : accès limité selon les permissions Django associées.
+
+L'utilisateur lambda sert principalement à collecter la donnée terrain. Il peut créer un compte, se connecter, envoyer une image, ajouter une adresse si disponible, ajouter un commentaire optionnel, puis recevoir une confirmation.
+
+Si un signalement est envoyé sans connexion, il est rattaché au compte système `anonymous_reporter`. Si l'utilisateur est connecté, le signalement est rattaché à son compte, ce qui améliore la traçabilité.
+
+Les pages admin sont protégées par `is_staff` et par des permissions Django dans `analyse/access.py` :
+
+- `analyse.view_image` : galerie, dashboard, statistiques et analyses image ;
+- `analyse.change_image` : correction d'annotation ;
+- `analyse.view_signalement` : cartographie et signalements ;
+- `analyse.view_zonerisques` / `analyse.add_zonerisques` : zones à risque ;
+- `analyse.view_classificationdefine`, `add_classificationdefine`, `change_classificationdefine` : règles de classification.
+
+Pour créer un compte administrateur local :
+
+```powershell
+python manage.py createsuperuser
+```
+
 ## URLs utiles pour la démonstration
 
-- Accueil : `http://127.0.0.1:8000/`
-- Upload : `http://127.0.0.1:8000/upload/`
-- Galerie : `http://127.0.0.1:8000/galerie/`
-- Dashboard : `http://127.0.0.1:8000/dashboard/`
-- Cartographie : `http://127.0.0.1:8000/cartographie/`
-- Règles de classification : `http://127.0.0.1:8000/classification_rule/`
+- Accueil public : `http://127.0.0.1:8000/`
+- Signalement public : `http://127.0.0.1:8000/upload/`
+- Connexion utilisateur : `http://127.0.0.1:8000/login/`
+- Création de compte utilisateur : `http://127.0.0.1:8000/register/`
+- Déconnexion : `http://127.0.0.1:8000/logout/`
+- Admin Django : `http://127.0.0.1:8000/admin/`
+- Galerie admin : `http://127.0.0.1:8000/galerie/`
+- Dashboard admin : `http://127.0.0.1:8000/dashboard/`
+- Cartographie admin : `http://127.0.0.1:8000/cartographie/`
+- Règles de classification admin : `http://127.0.0.1:8000/classification_rule/`
+
+## Interface utilisateur actuelle
+
+L'interface publique a été orientée vers un parcours citoyen simple :
+
+- une page d'accueil plus minimaliste et éditoriale ;
+- un message principal centré sur l'action : signaler une poubelle ;
+- un formulaire de signalement organisé par étapes : photo, localisation, détails ;
+- un champ adresse large et lisible avec un placeholder générique : `Ex : Avenue de la République` ;
+- une aide à la localisation via recherche d'adresse et géolocalisation navigateur ;
+- une confirmation visible après l'envoi d'un signalement.
+
+La page d'accueil ne contient plus de faux composant de carte ou d'adresse personnelle d'exemple. Les adresses affichées dans l'interface doivent rester génériques afin d'éviter d'utiliser des données personnelles ou trop réalistes dans la démonstration.
+
+Le parcours utilisateur lambda reste volontairement limité : il collecte la donnée terrain, mais ne peut pas annoter les images. L'annotation, la correction, le dashboard et la cartographie restent réservés aux administrateurs.
 
 ## Workflow applicatif
 
-1. L'utilisateur upload une image depuis la page Upload.
-2. L'image est stockée dans `media/uploads/`.
-3. Le système extrait des caractéristiques simples : dimensions, taille, couleur moyenne, luminance, contraste et histogramme.
-4. Des caractéristiques plus avancées sont calculées dans `analyse/ML.py` : contours, densité de bords, saturation, zones de l'image et texture.
-5. La fonction de classification applique des règles conditionnelles configurables.
-6. L'image apparaît dans la galerie avec son état estimé.
-7. L'utilisateur peut corriger l'annotation.
-8. Le dashboard affiche les statistiques globales.
-9. La cartographie affiche les signalements et les zones à risque.
+1. L'utilisateur peut rester anonyme ou se connecter avec un compte lambda.
+2. L'utilisateur envoie une image depuis la page de signalement.
+3. Il ajoute une adresse, utilise la géolocalisation si nécessaire, et peut compléter avec un commentaire.
+4. L'image est stockée dans `media/uploads/`.
+5. Le système extrait des caractéristiques simples : dimensions, taille, couleur moyenne, luminance, contraste et histogramme.
+6. Des caractéristiques plus avancées sont calculées dans `analyse/ML.py` : contours, densité de bords, saturation, zones de l'image et texture.
+7. La fonction de classification applique des règles conditionnelles configurables.
+8. Le signalement est enregistré avec l'image, le commentaire, l'utilisateur et les informations de localisation si disponibles.
+9. Un administrateur consulte la galerie, annote ou corrige l'état pleine/vide.
+10. Le dashboard affiche les statistiques globales.
+11. La cartographie affiche les signalements et les zones à risque.
 
 ## Principaux fichiers
 
 - `analyse/models.py` : modèles de données principaux.
-- `analyse/views.py` : vues Django, APIs JSON et logique de pages.
+- `analyse/access.py` : règles d'accès staff et permissions fines.
+- `analyse/views.py` : vues Django, APIs JSON et logique métier.
 - `analyse/ML.py` : extraction de caractéristiques et classification par règles.
 - `analyse/forms.py` : formulaires d'upload, règles et zones à risque.
 - `analyse/templates/` : pages HTML.
 - `analyse/static/` : fichiers CSS et JavaScript.
+- `analyse/tests.py` : tests de non-régression.
 - `media/uploads/` : images de démonstration et images uploadées.
 - `media/features/` : fichiers JSON de caractéristiques avancées.
+
+## Points d'attention UI/UX
+
+- Le design public doit rester sobre et centré sur la contribution citoyenne.
+- Les composants trop artificiels ou les fausses cartes décoratives sont à éviter.
+- Les exemples d'adresse doivent rester génériques.
+- Le champ adresse est critique pour la valeur métier du projet : il faut vérifier l'autocomplétion, l'effacement/re-saisie et la géolocalisation avant la soutenance.
+- Le responsive mobile doit être testé, car le signalement peut être réalisé depuis un téléphone.
+
+## Tests manuels recommandés
+
+Avant la démo, tester les parcours suivants dans le navigateur :
+
+1. Parcours anonyme :
+   - ouvrir `http://127.0.0.1:8000/` ;
+   - vérifier que seuls les liens publics sont visibles ;
+   - ouvrir `/upload/` ;
+   - envoyer une image avec ou sans adresse ;
+   - vérifier que le placeholder d'adresse reste générique ;
+   - tester l'effacement et la nouvelle saisie dans le champ adresse ;
+   - tester le bouton de géolocalisation si le navigateur le permet ;
+   - vérifier le message de confirmation ;
+   - essayer `/dashboard/` et vérifier la redirection vers la connexion admin.
+
+2. Parcours utilisateur lambda :
+   - ouvrir `/register/` ;
+   - créer un compte non admin ;
+   - vérifier que la navbar affiche `Déconnexion` ;
+   - envoyer une image depuis `/upload/` avec un commentaire ;
+   - vérifier que les pages admin restent inaccessibles.
+
+3. Parcours administrateur :
+   - ouvrir `/admin/` et se connecter avec un superuser ;
+   - ouvrir `/galerie/` ;
+   - vérifier que les nouvelles images apparaissent ;
+   - cliquer sur le changement d'annotation ;
+   - ouvrir `/dashboard/` et vérifier les graphiques ;
+   - ouvrir `/cartographie/` et vérifier les points de signalement ;
+   - ouvrir `/classification_rule/` et vérifier les règles.
+
+4. Permissions fines :
+   - créer un utilisateur `is_staff` non superuser dans `/admin/` ;
+   - sans permission, vérifier qu'il ne peut pas ouvrir `/dashboard/` ;
+   - lui ajouter `analyse | image | Can view image` ;
+   - vérifier qu'il peut ouvrir `/dashboard/`, mais pas forcément corriger une annotation sans `Can change image`.
+
+5. Vérification technique :
+   - ouvrir la console navigateur ;
+   - vérifier qu'il n'y a pas d'erreurs rouges sur dashboard/cartographie ;
+   - vérifier `git status` pour ne pas committer `db.sqlite3` ou des uploads de test par erreur.
 
 ## Captures à prévoir pour la soutenance
 
 Les captures ne sont pas incluses dans ce README. Pour la soutenance, prévoir idéalement :
 
-- page d'accueil ;
-- formulaire d'upload avec prévisualisation ;
-- galerie avec annotations ;
+- page d'accueil publique ;
+- formulaire de signalement avec prévisualisation, champ adresse et commentaire ;
+- redirection vers la connexion admin lorsqu'un utilisateur non staff tente d'accéder au dashboard ;
+- galerie admin avec annotations ;
 - page d'analyse avancée ;
 - dashboard avec graphiques ;
 - cartographie avec points de signalement.
@@ -114,10 +215,11 @@ Cette approche favorise la sobriété, l'explicabilité et une consommation rais
 
 - Le projet est conçu pour une démonstration locale, pas pour une mise en production directe.
 - `DEBUG=True` et la clé secrète Django sont encore dans `settings.py`.
-- Les pages login/register existent mais ne portent pas encore une authentification complète.
+- Les pages login/register couvrent un parcours simple de démonstration, mais pas encore une gestion complète de profil utilisateur.
 - Les résultats de classification restent dépendants des règles et de la qualité des images.
 - Les médias de démonstration et la base SQLite sont encore présents dans le dépôt.
 - Certaines fonctionnalités cartographiques dépendent d'OpenStreetMap/Nominatim et nécessitent Internet.
+- `views.py` reste volumineux ; la logique d'accès a été séparée dans `analyse/access.py`, mais un découpage complet des vues pourra être fait plus tard.
 
 ## Commandes utiles
 
@@ -139,17 +241,25 @@ Vérifier les fichiers ignorés par Git :
 git status --ignored
 ```
 
-## Tests automatises
+## Tests automatisés
 
 Les tests du projet sont dans `analyse/tests.py`.
 
 Ils couvrent actuellement :
 
-- le chargement des pages principales ;
+- le chargement des pages publiques ;
+- la redirection des pages admin pour les utilisateurs anonymes ;
+- l'accès aux pages admin pour un superuser ;
+- le refus d'un staff sans permission fine ;
+- l'accès dashboard pour un staff avec `view_image` ;
 - le workflow d'upload avec un nom de fichier accentué ;
-- l'API `/api/stats-globales/` utilisée par le dashboard ;
+- le rattachement d'un upload connecté à l'utilisateur courant ;
+- le rattachement d'un upload anonyme au compte système `anonymous_reporter` ;
+- la création de compte lambda et la connexion ;
+- les APIs utilisées par le dashboard et la cartographie ;
+- l'impossibilité de modifier une annotation sans droit admin ;
 - la création d'une règle de classification via `/form_rule/` ;
 - la cohérence du formulaire `ClassificationDefineForm` ;
 - l'enregistrement du signal d'extraction de caractéristiques des images.
 
-Ces tests servent surtout de filet de sécurité après les nettoyages techniques et les corrections de routes.
+Ces tests servent de filet de sécurité après les nettoyages techniques, les corrections de routes et la séparation des droits utilisateur/admin.

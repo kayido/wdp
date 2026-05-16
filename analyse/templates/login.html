@@ -1,13 +1,38 @@
 {% load static %}
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{% static "analyse/login.css" %}">
+    <title>Connexion - TRASHERO</title>
+    <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'analyse/login.css' %}">
 </head>
 <body>
-    #code here
+{% include "components/navbar.html" %}
 
+<main class="auth-page">
+    <section class="auth-panel">
+        <h2>Connexion</h2>
+        <p>Connectez-vous pour associer vos signalements à votre compte.</p>
+
+        {% if error %}
+            <div class="auth-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="username">Nom d'utilisateur</label>
+            <input id="username" type="text" name="username" autocomplete="username" required>
+
+            <label for="password">Mot de passe</label>
+            <input id="password" type="password" name="password" autocomplete="current-password" required>
+
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <p class="auth-link">Pas encore de compte ? <a href="/register/">Créer un compte</a></p>
+    </section>
+</main>
 </body>
 </html>
