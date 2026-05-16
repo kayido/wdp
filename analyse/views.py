@@ -22,7 +22,7 @@ from django.db.models.functions import ExtractWeekDay
 from django.db.models import Count
 from io import BytesIO
 from django.core.files.base import ContentFile
-from .ML import extract_features, classify_trash_can
+from .ML import extract_features, classify_trash_can, load_image
 
 # Page d'accueil avec upload + extraction automatique
 def home(request):
@@ -68,7 +68,7 @@ def home(request):
             luminance = 0.2126 * img_array[:, :, 0] + 0.7152 * img_array[:, :, 1] + 0.0722 * img_array[:, :, 2]
             image_obj.luminance_moyenne = float(np.mean(luminance))
             # Contraste (OpenCV)
-            cv_img = cv2.imread(path)
+            cv_img = load_image(path)
             gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
             image_obj.contraste = float(np.max(gray) - np.min(gray))
             # Histogramme compressé
@@ -401,24 +401,6 @@ def getZones(request) :
     return JsonResponse(data, safe=False)
 
 
-
-#----------------------------------------------------------------------------------------------------------------------------#
-#dashboard card
-def stats_globales(request):
-    stats = Image.objects.values('annotation').annotate(total=Count('id'))
-
-    total_images = Image.objects.count()
-    pleines = stats.filter(annotation='pleine').first()
-    videes = stats.filter(annotation='vide').first()
-
-    data = {
-        "total": total_images,
-        "pleines": pleines["total"] if pleines else 0,
-        "videes": videes["total"] if videes else 0
-    }
-    return JsonResponse(data)
-
-#----------------------------------------------------------------------------------------
 
 def evolution_hebdo(request):
     data = (

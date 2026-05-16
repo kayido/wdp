@@ -138,3 +138,18 @@ Vérifier les fichiers ignorés par Git :
 ```powershell
 git status --ignored
 ```
+
+## Tests automatises
+
+Les tests du projet sont dans `analyse/tests.py`.
+
+Ils couvrent actuellement :
+
+- le chargement des pages principales ;
+- le workflow d'upload avec un nom de fichier accentué ;
+- l'API `/api/stats-globales/` utilisée par le dashboard ;
+- la création d'une règle de classification via `/form_rule/` ;
+- la cohérence du formulaire `ClassificationDefineForm` ;
+- l'enregistrement du signal d'extraction de caractéristiques des images.
+
+Ces tests servent surtout de filet de sécurité après les nettoyages techniques et les corrections de routes.

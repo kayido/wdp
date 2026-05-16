@@ -156,17 +156,3 @@ fetch('/api/stats-globales/')
     document.querySelector('.status-red p').textContent = data.pleines;
     document.querySelector('.status-green p').textContent = data.videes;
     });
-
-// fetch('/api/risques/')
-//   .then(res => res.json())
-//   .then(data => {
-//     const ul = document.querySelector('.card ul');
-//     ul.innerHTML = "";
-//     if (data.length === 0) {
-//       ul.innerHTML = "<li>Aucune donnée disponible</li>";
-//     } else {
-//       data.forEach(p => {
-//         ul.innerHTML += `<li><strong>${p.quartier_nom}</strong> - <span class="badge badge-${p.risque.toLowerCase()}">${p.risque}</span> (${p.raison})</li>`;
-//       });
-//     }
-//   });

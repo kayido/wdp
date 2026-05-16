@@ -5,5 +5,6 @@ class AnalyseConfig(AppConfig):
     name = 'analyse'
 
     def ready(self):
+        import analyse.signals
         from . import scheduler
         scheduler.start()

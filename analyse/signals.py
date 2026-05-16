@@ -18,15 +18,12 @@ def extract_image_features(sender, instance, created, **kwargs):
     # PIL pour les tailles et moyennes RVB
     img_pil = PILImage.open(path).convert("RGB")
     largeur, hauteur = img_pil.size
-    pixels = list(img_pil.getdata())
-    total_pixels = len(pixels)
-    r_moyen = round(sum(p[0] for p in pixels) / total_pixels)
-    v_moyen = round(sum(p[1] for p in pixels) / total_pixels)
-    b_moyen = round(sum(p[2] for p in pixels) / total_pixels)
+    img_array = np.array(img_pil)
+    r_moyen = round(float(np.mean(img_array[:, :, 0])))
+    v_moyen = round(float(np.mean(img_array[:, :, 1])))
+    b_moyen = round(float(np.mean(img_array[:, :, 2])))
 
-    # Conversion OpenCV
-    img_cv = cv2.imread(path)
-    gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+    gray = np.array(img_pil.convert("L"))
 
     # Luminance moyenne
     luminance_moyenne = float(np.mean(gray))
@@ -36,7 +33,7 @@ def extract_image_features(sender, instance, created, **kwargs):
 
     # Détection de contours avec Canny
     contours = cv2.Canny(gray, threshold1=100, threshold2=200)
-    has_contours = np.any(contours)
+    has_contours = bool(np.any(contours))
 
     # Mise à jour de l'objet
     instance.largeur = largeur
