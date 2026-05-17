@@ -67,7 +67,6 @@ Ce qui a été fait :
 
 Important :
 
-- aucune adresse personnelle d'exemple ne doit être affichée dans l'interface ;
 - le champ adresse reste critique pour la soutenance, il faut le tester manuellement.
 
 ### 3. Interface publique
