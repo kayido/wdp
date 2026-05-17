@@ -2,7 +2,6 @@
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
 from .access import (
     classification_add_required,
     classification_change_required,
@@ -290,23 +289,15 @@ def login_view(request):
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
         user = authenticate(request, username=username, password=password)
-        if user is not None:
+        if user is not None and user.is_staff:
             login(request, user)
-            return redirect("home")
-        error = "Identifiants invalides."
+            return redirect("dashboard")
+        error = "Accès réservé aux administrateurs."
 
     return render(request, 'login.html', {"error": error})
 
 def register_view(request):
-    form = UserCreationForm()
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("home")
-
-    return render(request, 'register.html', {"form": form})
+    return redirect("login")
 
 def logout_view(request):
     logout(request)

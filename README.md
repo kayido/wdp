@@ -64,9 +64,9 @@ Le projet utilise les droits standards Django pour séparer les usages :
 - administrateur/superuser : accès à toutes les pages de pilotage ;
 - staff avec permissions fines : accès limité selon les permissions Django associées.
 
-L'utilisateur lambda sert principalement à collecter la donnée terrain. Il peut créer un compte, se connecter, envoyer une image, ajouter une adresse si disponible, ajouter un commentaire optionnel, puis recevoir une confirmation.
+L'utilisateur lambda sert principalement à collecter la donnée terrain. Il peut envoyer une image, ajouter une adresse si disponible, ajouter un commentaire optionnel, puis recevoir une confirmation. La création de compte public a été retirée car elle n'apporte pas de valeur fonctionnelle pour la démonstration actuelle.
 
-Si un signalement est envoyé sans connexion, il est rattaché au compte système `anonymous_reporter`. Si l'utilisateur est connecté, le signalement est rattaché à son compte, ce qui améliore la traçabilité.
+Un signalement public est rattaché au compte système `anonymous_reporter`. Si un administrateur envoie un signalement en étant connecté, il est rattaché à son compte.
 
 Les pages admin sont protégées par `is_staff` et par des permissions Django dans `analyse/access.py` :
 
@@ -86,8 +86,7 @@ python manage.py createsuperuser
 
 - Accueil public : `http://127.0.0.1:8000/`
 - Signalement public : `http://127.0.0.1:8000/upload/`
-- Connexion utilisateur : `http://127.0.0.1:8000/login/`
-- Création de compte utilisateur : `http://127.0.0.1:8000/register/`
+- Connexion administrateur : `http://127.0.0.1:8000/login/`
 - Déconnexion : `http://127.0.0.1:8000/logout/`
 - Admin Django : `http://127.0.0.1:8000/admin/`
 - Galerie admin : `http://127.0.0.1:8000/galerie/`
@@ -104,7 +103,8 @@ L'interface publique a été orientée vers un parcours citoyen simple :
 - un formulaire de signalement organisé par étapes : photo, localisation, détails ;
 - un champ adresse large et lisible avec un placeholder générique : `Ex : Avenue de la République` ;
 - une aide à la localisation via recherche d'adresse et géolocalisation navigateur ;
-- une confirmation visible après l'envoi d'un signalement.
+- une confirmation visible après l'envoi d'un signalement ;
+- une connexion dédiée aux administrateurs.
 
 La page d'accueil ne contient plus de faux composant de carte ou d'adresse personnelle d'exemple. Les adresses affichées dans l'interface doivent rester génériques afin d'éviter d'utiliser des données personnelles ou trop réalistes dans la démonstration.
 
@@ -112,17 +112,16 @@ Le parcours utilisateur lambda reste volontairement limité : il collecte la don
 
 ## Workflow applicatif
 
-1. L'utilisateur peut rester anonyme ou se connecter avec un compte lambda.
-2. L'utilisateur envoie une image depuis la page de signalement.
-3. Il ajoute une adresse, utilise la géolocalisation si nécessaire, et peut compléter avec un commentaire.
-4. L'image est stockée dans `media/uploads/`.
-5. Le système extrait des caractéristiques simples : dimensions, taille, couleur moyenne, luminance, contraste et histogramme.
-6. Des caractéristiques plus avancées sont calculées dans `analyse/ML.py` : contours, densité de bords, saturation, zones de l'image et texture.
-7. La fonction de classification applique des règles conditionnelles configurables.
-8. Le signalement est enregistré avec l'image, le commentaire, l'utilisateur et les informations de localisation si disponibles.
-9. Un administrateur consulte la galerie, annote ou corrige l'état pleine/vide.
-10. Le dashboard affiche les statistiques globales.
-11. La cartographie affiche les signalements et les zones à risque.
+1. L'utilisateur envoie une image depuis la page de signalement, sans création de compte.
+2. Il ajoute une adresse, utilise la géolocalisation si nécessaire, et peut compléter avec un commentaire.
+3. L'image est stockée dans `media/uploads/`.
+4. Le système extrait des caractéristiques simples : dimensions, taille, couleur moyenne, luminance, contraste et histogramme.
+5. Des caractéristiques plus avancées sont calculées dans `analyse/ML.py` : contours, densité de bords, saturation, zones de l'image et texture.
+6. La fonction de classification applique des règles conditionnelles configurables.
+7. Le signalement est enregistré avec l'image, le commentaire, l'utilisateur système anonyme et les informations de localisation si disponibles.
+8. Un administrateur se connecte, consulte la galerie, annote ou corrige l'état pleine/vide.
+9. Le dashboard affiche les statistiques globales.
+10. La cartographie affiche les signalements et les zones à risque.
 
 ## Principaux fichiers
 
@@ -160,12 +159,11 @@ Avant la démo, tester les parcours suivants dans le navigateur :
    - vérifier le message de confirmation ;
    - essayer `/dashboard/` et vérifier la redirection vers la connexion admin.
 
-2. Parcours utilisateur lambda :
-   - ouvrir `/register/` ;
-   - créer un compte non admin ;
-   - vérifier que la navbar affiche `Déconnexion` ;
-   - envoyer une image depuis `/upload/` avec un commentaire ;
-   - vérifier que les pages admin restent inaccessibles.
+2. Parcours connexion admin :
+   - ouvrir `/login/` ;
+   - vérifier qu'un compte non staff ne peut pas se connecter ;
+   - se connecter avec un compte administrateur ;
+   - vérifier que la navbar affiche `Déconnexion` et les liens admin.
 
 3. Parcours administrateur :
    - ouvrir `/admin/` et se connecter avec un superuser ;
@@ -215,7 +213,7 @@ Cette approche favorise la sobriété, l'explicabilité et une consommation rais
 
 - Le projet est conçu pour une démonstration locale, pas pour une mise en production directe.
 - `DEBUG=True` et la clé secrète Django sont encore dans `settings.py`.
-- Les pages login/register couvrent un parcours simple de démonstration, mais pas encore une gestion complète de profil utilisateur.
+- La page login est réservée aux administrateurs ; la création de compte public est désactivée.
 - Les résultats de classification restent dépendants des règles et de la qualité des images.
 - Les médias de démonstration et la base SQLite sont encore présents dans le dépôt.
 - Certaines fonctionnalités cartographiques dépendent d'OpenStreetMap/Nominatim et nécessitent Internet.
@@ -255,7 +253,8 @@ Ils couvrent actuellement :
 - le workflow d'upload avec un nom de fichier accentué ;
 - le rattachement d'un upload connecté à l'utilisateur courant ;
 - le rattachement d'un upload anonyme au compte système `anonymous_reporter` ;
-- la création de compte lambda et la connexion ;
+- le refus de connexion pour un utilisateur non staff ;
+- la connexion d'un administrateur ;
 - les APIs utilisées par le dashboard et la cartographie ;
 - l'impossibilité de modifier une annotation sans droit admin ;
 - la création d'une règle de classification via `/form_rule/` ;

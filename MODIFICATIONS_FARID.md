@@ -31,7 +31,8 @@ Ce qui a été fait :
 
 - ajout d'un fichier `analyse/access.py` pour centraliser les règles d'accès ;
 - protection des pages admin avec `is_staff` et permissions Django ;
-- ajout d'un parcours simple `register`, `login`, `logout` pour les utilisateurs lambda ;
+- ajout d'une connexion dédiée aux administrateurs ;
+- désactivation de la création de compte public via `/register/` ;
 - l'utilisateur lambda ne doit pas accéder à l'annotation, au dashboard ou à la cartographie admin ;
 - les administrateurs conservent l'accès aux pages de pilotage.
 
@@ -88,19 +89,19 @@ Ce qui a été fait :
 - affichage adapté selon utilisateur lambda ou admin ;
 - navbar modernisée sans changer les routes.
 
-### 4. Login / register
+### 4. Connexion administrateur
 
 Fichiers concernés :
 
 - `analyse/templates/login.html`
-- `analyse/templates/register.html`
 - `analyse/static/analyse/login.css`
 
 Ce qui a été fait :
 
-- pages de connexion et création de compte rendues plus propres visuellement ;
-- parcours simple suffisant pour une démonstration ;
-- les comptes créés via `/register/` sont des utilisateurs lambda non staff.
+- page de connexion rendue plus propre visuellement ;
+- accès réservé aux comptes `is_staff` ;
+- les comptes non staff ne peuvent pas se connecter via `/login/` ;
+- `/register/` redirige vers `/login/` pour éviter la création de comptes publics.
 
 ### 5. Nettoyage technique et corrections
 
@@ -157,7 +158,8 @@ Les tests couvrent notamment :
 - workflow upload avec nom de fichier accentué ;
 - rattachement upload connecté à l'utilisateur courant ;
 - rattachement upload anonyme à `anonymous_reporter` ;
-- register/login lambda ;
+- refus de connexion pour un compte non staff ;
+- connexion d'un administrateur ;
 - APIs dashboard et cartographie ;
 - protection de l'annotation ;
 - création d'une règle de classification ;
@@ -183,12 +185,10 @@ Résultat obtenu localement avant push :
 ### Parcours lambda
 
 1. Ouvrir `/`.
-2. Ouvrir `/register/`.
-3. Créer un compte non admin.
-4. Aller sur `/upload/`.
-5. Envoyer une image avec adresse et commentaire.
-6. Vérifier la confirmation.
-7. Vérifier que `/dashboard/`, `/galerie/`, `/cartographie/` ne sont pas accessibles.
+2. Aller sur `/upload/`.
+3. Envoyer une image avec adresse et commentaire.
+4. Vérifier la confirmation.
+5. Vérifier que `/dashboard/`, `/galerie/`, `/cartographie/` ne sont pas accessibles.
 
 ### Champ adresse
 
@@ -220,7 +220,7 @@ Ne pas committer :
 
 - La branche est fonctionnelle localement, mais il faut valider visuellement l'UI sur plusieurs tailles d'écran.
 - Le fichier `views.py` reste volumineux : il fonctionne, mais un découpage pourra être fait plus tard.
-- Le système login/register reste simple et adapté à une démo, pas à une production.
+- La connexion est réservée aux administrateurs ; il n'y a plus de création de compte public.
 - La cartographie et l'autocomplétion d'adresse peuvent dépendre d'un accès Internet.
 - Les médias et la base SQLite doivent être gérés avec prudence avant un merge final.
 

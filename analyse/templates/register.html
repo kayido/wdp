@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un compte - TRASHERO</title>
+    <title>Inscription désactivée - TRASHERO</title>
     <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'analyse/login.css' %}">
 </head>
@@ -13,16 +13,9 @@
 
 <main class="auth-page">
     <section class="auth-panel">
-        <h2>Créer un compte</h2>
-        <p>Un compte utilisateur permet de rattacher vos signalements à votre profil.</p>
-
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Créer le compte</button>
-        </form>
-
-        <p class="auth-link">Déjà inscrit ? <a href="/login/">Se connecter</a></p>
+        <h2>Inscription désactivée</h2>
+        <p>Les signalements citoyens se font sans création de compte. La connexion est réservée aux administrateurs.</p>
+        <p class="auth-link"><a href="/login/">Accéder à l'espace admin</a></p>
     </section>
 </main>
 </body>
