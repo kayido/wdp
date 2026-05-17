@@ -266,23 +266,13 @@ class UploadWorkflowTests(TestCase):
 
 
 class AuthWorkflowTests(TestCase):
-    def test_register_creates_lambda_user_and_logs_them_in(self):
-        response = self.client.post(
-            reverse("register"),
-            {
-                "username": "lambda_user",
-                "password1": "StrongPass123!",
-                "password2": "StrongPass123!",
-            },
-        )
+    def test_register_redirects_to_admin_login(self):
+        response = self.client.get(reverse("register"))
 
-        self.assertRedirects(response, reverse("home"))
-        user = User.objects.get(username="lambda_user")
-        self.assertFalse(user.is_staff)
-        self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
+        self.assertRedirects(response, reverse("login"))
 
-    def test_login_authenticates_existing_user(self):
-        user = User.objects.create_user(username="existing_user", password="StrongPass123!")
+    def test_login_rejects_non_staff_user(self):
+        User.objects.create_user(username="existing_user", password="StrongPass123!")
 
         response = self.client.post(
             reverse("login"),
@@ -292,7 +282,22 @@ class AuthWorkflowTests(TestCase):
             },
         )
 
-        self.assertRedirects(response, reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertContains(response, "Accès réservé aux administrateurs.")
+
+    def test_login_authenticates_staff_user(self):
+        user = create_staff_user(username="existing_admin")
+
+        response = self.client.post(
+            reverse("login"),
+            {
+                "username": user.username,
+                "password": "password",
+            },
+        )
+
+        self.assertRedirects(response, reverse("dashboard"))
         self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
 
 
