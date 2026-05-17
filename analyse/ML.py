@@ -24,7 +24,8 @@ def convert_numpy_types(obj):
 def load_image(image_path: str) -> np.ndarray:
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"L'image {image_path} n'existe pas.")
-    img = cv2.imread(image_path)
+    img_data = np.fromfile(image_path, dtype=np.uint8)
+    img = cv2.imdecode(img_data, cv2.IMREAD_COLOR)
     if img is None:
         raise ValueError(f"Impossible de charger l'image {image_path}. Vérifiez le format ou l'intégrité du fichier.")
     if img.shape[0] < 10 or img.shape[1] < 10:

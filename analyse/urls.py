@@ -13,6 +13,7 @@ urlpatterns = [
     # Pages statiques / annexes
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('classification_rule/', views.classification_rule_view, name='classification_rule'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('form_rule/', views.form_rule_view, name='form_rule'),

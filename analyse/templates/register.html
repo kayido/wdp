@@ -1,1 +1,29 @@
 {% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un compte - TRASHERO</title>
+    <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'analyse/login.css' %}">
+</head>
+<body>
+{% include "components/navbar.html" %}
+
+<main class="auth-page">
+    <section class="auth-panel">
+        <h2>Créer un compte</h2>
+        <p>Un compte utilisateur permet de rattacher vos signalements à votre profil.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Créer le compte</button>
+        </form>
+
+        <p class="auth-link">Déjà inscrit ? <a href="/login/">Se connecter</a></p>
+    </section>
+</main>
+</body>
+</html>

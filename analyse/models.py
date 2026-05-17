@@ -26,7 +26,6 @@ class Image(models.Model):
     b_moyen = models.IntegerField(null=True, blank=True)
 #    
     luminance_moyenne = models.FloatField(null=True, blank=True)
-    contraste = models.FloatField(null=True, blank=True)
     has_contours = models.BooleanField(null=True, blank=True)
     # Pour le contraste
     contraste = models.FloatField(null=True, blank=True)
@@ -118,10 +117,3 @@ class ClassificationDefine(models.Model):
 
 
 
-from django.apps import AppConfig
-
-class AnalyseConfig(AppConfig):
-    name = 'analyse'
-    def ready(self):
-        from . import scheduler
-        scheduler.start()

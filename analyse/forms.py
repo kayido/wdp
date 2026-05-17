@@ -39,7 +39,6 @@ class ClassificationDefineForm(forms.ModelForm):
 
         widgets = {
             'num_contours_rule_1_vide': forms.NumberInput(attrs={'class': 'form-control'}),
-            'area_ratio_rule_2_vide': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'mean_gray_rule_2_vide': forms.NumberInput(attrs={'class': 'form-control'}),
             'edge_density_rule_2_vide': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
             'area_ratio_rule_3_vide': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),

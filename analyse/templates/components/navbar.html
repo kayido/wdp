@@ -1,24 +1,34 @@
 {% load static %}
 
-<header>
-  <div style="display: flex; align-items: center; gap: 10px;">
-    <img src="{% static 'images/logo.png' %}" alt="Logo Trashero" style="height: 50px;">
-    <div>
-      <h1>TRASHERO</h1>
-      <p>Plateforme intelligente de suivi des poubelles</p>
-    </div>
-  </div>
+<header class="site-header">
+  <a href="/" class="brand-link" aria-label="Retour à l'accueil TRASHERO">
+    <img src="{% static 'images/logo.png' %}" alt="Logo Trashero">
+    <span>
+      <strong>TRASHERO</strong>
+      <small>Suivi intelligent des poubelles</small>
+    </span>
+  </a>
 </header>
 
-<nav>
-  <a href="/">Accueil</a>
-  <a href="/upload">Upload Images</a>
-  <a href="/galerie">Galerie</a>
-  <a href="/dashboard">Tableau de Bord</a>
-  <a href="/cartographie">Cartographie</a>
-  {% comment %} <a href="/parametres">Paramètres</a> {% endcomment %}
-  <a href="/classification_rule">Régle de classification</a>
-</nav>
+<nav class="site-nav" aria-label="Navigation principale">
+  <div class="nav-links">
+    <a href="/">Accueil</a>
+    {% if request.user.is_staff %}
+      <a href="/galerie">Galerie</a>
+      <a href="/dashboard">Tableau de bord</a>
+      <a href="/cartographie">Cartographie</a>
+      {% comment %} <a href="/parametres">Paramètres</a> {% endcomment %}
+      <a href="/classification_rule">Règle de classification</a>
+    {% endif %}
+  </div>
 
-</body>
-</html>
+  <div class="nav-actions">
+    {% if request.user.is_authenticated %}
+      <a href="/logout/" class="nav-link-muted">Déconnexion</a>
+    {% else %}
+      <a href="/login/" class="nav-link-muted">Connexion</a>
+      <a href="/register/" class="nav-link-muted">Créer un compte</a>
+    {% endif %}
+    <a href="/upload" class="nav-cta">Signaler une poubelle</a>
+  </div>
+</nav>

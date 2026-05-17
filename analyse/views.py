@@ -1,6 +1,19 @@
-from django.shortcuts import render, redirect
+﻿from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
+from .access import (
+    classification_add_required,
+    classification_change_required,
+    classification_view_required,
+    image_change_required,
+    image_view_required,
+    signalement_view_required,
+    staff_required,
+    zone_add_required,
+    zone_view_required,
+)
 from analyse.règles_classification import classification_par_regles
 from .forms import UploadForm, ClassificationDefineForm
 from .models import Image, Signalement, User
@@ -22,7 +35,18 @@ from django.db.models.functions import ExtractWeekDay
 from django.db.models import Count
 from io import BytesIO
 from django.core.files.base import ContentFile
-from .ML import extract_features, classify_trash_can
+from .ML import extract_features, classify_trash_can, load_image
+
+
+def get_signalement_user(request):
+    if request.user.is_authenticated:
+        return request.user
+
+    user, created = User.objects.get_or_create(username="anonymous_reporter")
+    if created:
+        user.set_unusable_password()
+        user.save()
+    return user
 
 # Page d'accueil avec upload + extraction automatique
 def home(request):
@@ -68,7 +92,7 @@ def home(request):
             luminance = 0.2126 * img_array[:, :, 0] + 0.7152 * img_array[:, :, 1] + 0.0722 * img_array[:, :, 2]
             image_obj.luminance_moyenne = float(np.mean(luminance))
             # Contraste (OpenCV)
-            cv_img = cv2.imread(path)
+            cv_img = load_image(path)
             gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
             image_obj.contraste = float(np.max(gray) - np.min(gray))
             # Histogramme compressé
@@ -77,7 +101,7 @@ def home(request):
             image_obj.histogramme = json.dumps(hist_list[:64])  # 64 premières valeurs
             
             
-            message = "Image envoyée et analysée avec succès !"
+            message = "Votre signalement a été reçu. Merci pour votre contribution."
 
             features = extract_features(image_path=path, debug=None, filename=image_obj.nom_fichier)
             image_obj.annotation = classify_trash_can(features)
@@ -86,7 +110,7 @@ def home(request):
             image_obj.save()
 
             signalement = Signalement()
-            signalement.description = ""
+            signalement.description = request.POST.get("description", "")
             if request.POST.get("lat") =="" or request.POST.get("long") =="":
                 signalement.latitude = 48.7904 
                 signalement.longitude = 2.4606
@@ -115,18 +139,9 @@ def home(request):
 
             if zone_trouvee:
                 signalement.zone = zone_trouvee
-            try :
-                user = User.objects.get(username="user2")
-                signalement.utilisateur = user 
-                signalement.save()
-                print("signalement enregistré avec succés")
-            except :
-             
-                user = User.objects.create(username="user2", password="Abcdefg123@")
-                user.save()
-                signalement.utilisateur = user 
-                signalement.save()
-                print("signalement enregistré avec succés")
+            signalement.utilisateur = get_signalement_user(request)
+            signalement.save()
+            print("signalement enregistré avec succès")
 
     return render(request, 'index.html', {'form': form, 'message': message})
 
@@ -139,6 +154,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 
 # Galerie avec pagination
+@image_view_required
 def galerie(request):
     filtre = request.GET.get('filtre')
     images = Image.objects.all().order_by('-date_upload')
@@ -151,6 +167,7 @@ def galerie(request):
 
     return render(request, 'galerie.html', {'images': page_obj})
 
+@image_change_required
 def change_annotation (request, id):
   
     image = get_object_or_404(Image, id=id)
@@ -163,6 +180,7 @@ def change_annotation (request, id):
     
     return redirect("galerie")
 
+@image_view_required
 def gallery_items(request):
     images = Image.objects.all().order_by('-date_upload')
     paginator = Paginator(images, 6)
@@ -201,6 +219,7 @@ def gallery_items(request):
 
 
 # cartographie----------------------------------------------------------------
+@signalement_view_required
 def signalements_items(request):
     signalements = Signalement.objects.all()
     data = []
@@ -228,6 +247,7 @@ def signalements_items(request):
     return JsonResponse(data_unique, safe=False)
 
 from statistics import median
+@signalement_view_required
 def zone_5_view(request):
     signalements = Signalement.objects.all()
     data = []
@@ -265,31 +285,57 @@ def zone_5_view(request):
 from .models import ClassificationDefine
 # Pages simples
 def login_view(request):
-    return render(request, 'login.html')
+    error = ""
+    if request.method == "POST":
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("home")
+        error = "Identifiants invalides."
+
+    return render(request, 'login.html', {"error": error})
 
 def register_view(request):
-    return render(request, 'register.html')
+    form = UserCreationForm()
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("home")
 
+    return render(request, 'register.html', {"form": form})
+
+def logout_view(request):
+    logout(request)
+    return redirect("home")
+
+@image_view_required
 def dashboard(request):
     return render(request, 'dashboard.html')
 
+@classification_view_required
 def classification_rule_view(request):
     rules = ClassificationDefine.objects.all()
 
     return render(request, 'classification_rule.html', context={"rules" : rules})
 
+@classification_add_required
 def form_rule_view(request):
     form = ClassificationDefineForm()
 
     if request.method == "POST" :
         form = ClassificationDefineForm(request.POST)
-        if form.is_valid :
+        if form.is_valid():
             form.save()
 
-        redirect("classification_rule")
+        return redirect("classification_rule")
 
     return render(request, 'form_rule.html', context={"form" : form})
 
+@classification_change_required
 def activer_rule(request, id) :
     print(id)
     rules = ClassificationDefine.objects.all()
@@ -308,22 +354,26 @@ def activer_rule(request, id) :
     
 
 
+@signalement_view_required
 def signalement_view(request):
     return render(request, 'signalement.html')
 
 def acceuil_view(request):
     return render(request, 'acceuil.html')
 
+@signalement_view_required
 def cartographie_view(request):
     return render(request, "cartographie.html")
 
 
+@staff_required
 def test_view(request):
     return render(request, 'test.html')
 
 
 #dashboard
 
+@image_view_required
 def histogrammes_uploads(request) :
     images_par_jour = list(
         Image.objects
@@ -335,10 +385,11 @@ def histogrammes_uploads(request) :
     return JsonResponse(images_par_jour, safe=False)
 
 
+@image_view_required
 def histogrammes_hours(request):
     signalements_par_heure = list(
         Image.objects
-        .annotate(heure=ExtractHour("date_upload"))  # extrait l'heure (00–23)
+        .annotate(heure=ExtractHour("date_upload"))  # extrait l'heure (00-23)
         .values("heure")
         .annotate(nb_signalements=Count("id"))
         .order_by("heure")
@@ -349,6 +400,7 @@ def histogrammes_hours(request):
 
 from .ML import traitement
 import time
+@image_view_required
 def analyse_avances(request, filename):
 
     print(filename)
@@ -367,6 +419,7 @@ def analyse_avances(request, filename):
     return JsonResponse(data, safe=False)
 
 
+@image_view_required
 def analyse_avances_view (request,filename) : 
     return render (request, "analyse_avances.html", context= {"filename": filename})
 
@@ -374,6 +427,7 @@ def analyse_avances_view (request,filename) :
 from .models import ZoneRisques
 from .forms import ZoneRisquesForm  # À créer
 
+@zone_add_required
 def ajouter_zone_risques(request):
     if request.method == 'POST':
         form = ZoneRisquesForm(request.POST)
@@ -385,6 +439,7 @@ def ajouter_zone_risques(request):
     return render(request, 'ajouter_zone_risques.html', {'form': form})
 
 
+@zone_view_required
 def getZones(request) :
     zones = list(ZoneRisques.objects.all())
     data = []
@@ -402,24 +457,6 @@ def getZones(request) :
 
 
 
-#----------------------------------------------------------------------------------------------------------------------------#
-#dashboard card
-def stats_globales(request):
-    stats = Image.objects.values('annotation').annotate(total=Count('id'))
-
-    total_images = Image.objects.count()
-    pleines = stats.filter(annotation='pleine').first()
-    videes = stats.filter(annotation='vide').first()
-
-    data = {
-        "total": total_images,
-        "pleines": pleines["total"] if pleines else 0,
-        "videes": videes["total"] if videes else 0
-    }
-    return JsonResponse(data)
-
-#----------------------------------------------------------------------------------------
-
 def evolution_hebdo(request):
     data = (
         Image.objects
@@ -431,6 +468,7 @@ def evolution_hebdo(request):
     return JsonResponse(list(data), safe=False)
 
 
+@image_view_required
 def stats_globales(request):
     total = Image.objects.count()
     pleines = Image.objects.filter(annotation='pleine').count()
@@ -444,6 +482,7 @@ def stats_globales(request):
 
 
 
+@image_view_required
 def parametres(request):
     """
     Vue pour la page des paramètres
@@ -466,6 +505,7 @@ from sklearn.metrics import confusion_matrix
 import pandas as pd
 
 
+@image_view_required
 def performance_model(request) :
     images = Image.objects.all()
     true_model = 0
