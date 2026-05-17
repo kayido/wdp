@@ -1,7 +1,6 @@
 ﻿from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth import authenticate, login, logout
 from .access import (
     classification_add_required,
     classification_change_required,
@@ -282,26 +281,6 @@ def zone_5_view(request):
     return JsonResponse(data_triees[:6:-1], safe=False)
 
 from .models import ClassificationDefine
-# Pages simples
-def login_view(request):
-    error = ""
-    if request.method == "POST":
-        username = request.POST.get("username", "")
-        password = request.POST.get("password", "")
-        user = authenticate(request, username=username, password=password)
-        if user is not None and user.is_staff:
-            login(request, user)
-            return redirect("dashboard")
-        error = "Accès réservé aux administrateurs."
-
-    return render(request, 'login.html', {"error": error})
-
-def register_view(request):
-    return redirect("login")
-
-def logout_view(request):
-    logout(request)
-    return redirect("home")
 
 @image_view_required
 def dashboard(request):

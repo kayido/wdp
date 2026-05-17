@@ -20,12 +20,14 @@ Le principe fonctionnel retenu est le suivant :
 
 Fichiers concernés :
 
+- `accounts/views.py`
+- `accounts/urls.py`
+- `accounts/templates/accounts/login.html`
+- `accounts/templates/accounts/register.html`
 - `analyse/access.py`
 - `analyse/views.py`
 - `analyse/urls.py`
 - `analyse/templates/components/navbar.html`
-- `analyse/templates/login.html`
-- `analyse/templates/register.html`
 
 Ce qui a été fait :
 
@@ -93,11 +95,17 @@ Ce qui a été fait :
 
 Fichiers concernés :
 
-- `analyse/templates/login.html`
+- `accounts/views.py`
+- `accounts/urls.py`
+- `accounts/templates/accounts/login.html`
+- `accounts/templates/accounts/register.html`
 - `analyse/static/analyse/login.css`
 
 Ce qui a été fait :
 
+- création d'une app Django dédiée `accounts` ;
+- déplacement des routes `/login/`, `/logout/` et `/register/` vers `accounts/urls.py` ;
+- déplacement des templates d'authentification vers `accounts/templates/accounts/` ;
 - page de connexion rendue plus propre visuellement ;
 - accès réservé aux comptes `is_staff` ;
 - les comptes non staff ne peuvent pas se connecter via `/login/` ;
@@ -147,6 +155,7 @@ Ce qui a été fait :
 Fichier concerné :
 
 - `analyse/tests.py`
+- `accounts/tests.py`
 
 Les tests couvrent notamment :
 
@@ -178,7 +187,7 @@ python manage.py test
 Résultat obtenu localement avant push :
 
 - `python manage.py check` : OK ;
-- `python manage.py test` : 18 tests OK.
+- `python manage.py test` : 19 tests OK.
 
 ## Tests manuels à faire par le groupe
 

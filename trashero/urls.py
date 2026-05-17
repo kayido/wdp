@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from analyse import views  # import de ta vue `home`
 
 urlpatterns = [
+    path('', include("accounts.urls")),
     path('', include("analyse.urls")),  # Page d’accueil
     path('admin/', admin.site.urls),
 ]

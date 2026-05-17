@@ -133,6 +133,9 @@ Le parcours utilisateur lambda reste volontairement limité : il collecte la don
 - `analyse/templates/` : pages HTML.
 - `analyse/static/` : fichiers CSS et JavaScript.
 - `analyse/tests.py` : tests de non-régression.
+- `accounts/views.py` : vues de connexion, déconnexion et redirection d'inscription.
+- `accounts/urls.py` : routes d'authentification `/login/`, `/logout/` et `/register/`.
+- `accounts/templates/accounts/` : templates de connexion admin.
 - `media/uploads/` : images de démonstration et images uploadées.
 - `media/features/` : fichiers JSON de caractéristiques avancées.
 
@@ -217,7 +220,7 @@ Cette approche favorise la sobriété, l'explicabilité et une consommation rais
 - Les résultats de classification restent dépendants des règles et de la qualité des images.
 - Les médias de démonstration et la base SQLite sont encore présents dans le dépôt.
 - Certaines fonctionnalités cartographiques dépendent d'OpenStreetMap/Nominatim et nécessitent Internet.
-- `views.py` reste volumineux ; la logique d'accès a été séparée dans `analyse/access.py`, mais un découpage complet des vues pourra être fait plus tard.
+- `views.py` reste volumineux ; la logique d'accès a été séparée dans `analyse/access.py` et l'authentification dans `accounts`, mais un découpage complet des vues pourra être fait plus tard.
 
 ## Commandes utiles
 
@@ -241,7 +244,7 @@ git status --ignored
 
 ## Tests automatisés
 
-Les tests du projet sont dans `analyse/tests.py`.
+Les tests du projet sont principalement dans `analyse/tests.py`. Les tests d'authentification sont dans `accounts/tests.py`.
 
 Ils couvrent actuellement :
 
