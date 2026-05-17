@@ -11,7 +11,7 @@ La branche améliore le projet Wild Dump Prevention autour de deux axes :
 
 Le principe fonctionnel retenu est le suivant :
 
-- utilisateur lambda : collecte terrain, upload d'image, adresse/localisation, commentaire ;
+- utilisateur lambda : collecte terrain, upload d'image et adresse/localisation ;
 - administrateur : consultation, annotation, correction, dashboard, cartographie, règles de classification.
 
 ## Changements principaux
@@ -195,7 +195,7 @@ Résultat obtenu localement avant push :
 
 1. Ouvrir `/`.
 2. Aller sur `/upload/`.
-3. Envoyer une image avec adresse et commentaire.
+3. Envoyer une image avec une adresse.
 4. Vérifier la confirmation.
 5. Vérifier que `/dashboard/`, `/galerie/`, `/cartographie/` ne sont pas accessibles.
 
@@ -237,7 +237,7 @@ Ne pas committer :
 
 La contribution principale est d'avoir transformé l'application en deux parcours plus clairs :
 
-- le citoyen signale une poubelle avec photo, localisation et commentaire ;
+- le citoyen signale une poubelle avec photo et localisation ;
 - l'administrateur valide, corrige, analyse et pilote les données.
 
 Cette séparation rend le projet plus crédible pour une démonstration, plus clair pour les utilisateurs, et plus cohérent avec le cahier des charges.

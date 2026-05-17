@@ -64,7 +64,7 @@ Le projet utilise les droits standards Django pour séparer les usages :
 - administrateur/superuser : accès à toutes les pages de pilotage ;
 - staff avec permissions fines : accès limité selon les permissions Django associées.
 
-L'utilisateur lambda sert principalement à collecter la donnée terrain. Il peut envoyer une image, ajouter une adresse si disponible, ajouter un commentaire optionnel, puis recevoir une confirmation. La création de compte public a été retirée car elle n'apporte pas de valeur fonctionnelle pour la démonstration actuelle.
+L'utilisateur lambda sert principalement à collecter la donnée terrain. Il peut envoyer une image, ajouter une adresse si disponible, puis recevoir une confirmation. La création de compte public a été retirée car elle n'apporte pas de valeur fonctionnelle pour la démonstration actuelle.
 
 Un signalement public est rattaché au compte système `anonymous_reporter`. Si un administrateur envoie un signalement en étant connecté, il est rattaché à son compte.
 
@@ -100,7 +100,7 @@ L'interface publique a été orientée vers un parcours citoyen simple :
 
 - une page d'accueil plus minimaliste et éditoriale ;
 - un message principal centré sur l'action : signaler une poubelle ;
-- un formulaire de signalement organisé par étapes : photo, localisation, détails ;
+- un formulaire de signalement organisé autour de la photo et de la localisation ;
 - un champ adresse large et lisible avec un placeholder générique : `Ex : Avenue de la République` ;
 - une aide à la localisation via recherche d'adresse et géolocalisation navigateur ;
 - une confirmation visible après l'envoi d'un signalement ;
@@ -113,12 +113,12 @@ Le parcours utilisateur lambda reste volontairement limité : il collecte la don
 ## Workflow applicatif
 
 1. L'utilisateur envoie une image depuis la page de signalement, sans création de compte.
-2. Il ajoute une adresse, utilise la géolocalisation si nécessaire, et peut compléter avec un commentaire.
+2. Il ajoute une adresse ou utilise la géolocalisation si nécessaire.
 3. L'image est stockée dans `media/uploads/`.
 4. Le système extrait des caractéristiques simples : dimensions, taille, couleur moyenne, luminance, contraste et histogramme.
 5. Des caractéristiques plus avancées sont calculées dans `analyse/ML.py` : contours, densité de bords, saturation, zones de l'image et texture.
 6. La fonction de classification applique des règles conditionnelles configurables.
-7. Le signalement est enregistré avec l'image, le commentaire, l'utilisateur système anonyme et les informations de localisation si disponibles.
+7. Le signalement est enregistré avec l'image, l'utilisateur système anonyme et les informations de localisation si disponibles.
 8. Un administrateur se connecte, consulte la galerie, annote ou corrige l'état pleine/vide.
 9. Le dashboard affiche les statistiques globales.
 10. La cartographie affiche les signalements et les zones à risque.
@@ -193,7 +193,7 @@ Avant la démo, tester les parcours suivants dans le navigateur :
 Les captures ne sont pas incluses dans ce README. Pour la soutenance, prévoir idéalement :
 
 - page d'accueil publique ;
-- formulaire de signalement avec prévisualisation, champ adresse et commentaire ;
+- formulaire de signalement avec prévisualisation et champ adresse ;
 - redirection vers la connexion admin lorsqu'un utilisateur non staff tente d'accéder au dashboard ;
 - galerie admin avec annotations ;
 - page d'analyse avancée ;
