@@ -35,6 +35,14 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from .ML import extract_features, classify_trash_can, load_image
 
+# views.py
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def carte_view(request):
+    session_key = request.session.session_key
+    streamlit_url = f"http://localhost:8501/?session_key={session_key}"
+    return redirect(streamlit_url)
 
 def get_signalement_user(request):
     if request.user.is_authenticated:
