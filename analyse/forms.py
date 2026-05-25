@@ -22,11 +22,17 @@ class UploadForm(forms.ModelForm):
 
 from .models import ZoneRisques
 
+from .models import ZoneRisques
+
 class ZoneRisquesForm(forms.ModelForm):
     class Meta:
         model = ZoneRisques
         fields = ['libelle', 'adresse', 'longitude', 'latitude', 'date_debut_validite', 'date_fin_validite', 'niveau']
-
+        widgets = {
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+            'adresse': forms.TextInput(attrs={'autocomplete': 'off'}),
+        }
 
 
 from django import forms

@@ -12,7 +12,6 @@ from .access import (
     zone_add_required,
     zone_view_required,
 )
-from analyse.règles_classification import classification_par_regles
 from .forms import UploadForm, ClassificationDefineForm
 from .models import Image, Signalement, User
 from PIL import Image as PILImage
@@ -286,7 +285,7 @@ def zone_5_view(request):
     # Tri en ordre croissant selon l'âge
     data_triees = sorted(data_unique, key=lambda p: p["occur"])
     
-    return JsonResponse(data_triees[:6:-1], safe=False)
+    return JsonResponse(data_triees[:7:-1], safe=False)
 
 from .models import ClassificationDefine
 
@@ -404,18 +403,18 @@ def analyse_avances_view (request,filename) :
 
 from .models import ZoneRisques
 from .forms import ZoneRisquesForm  # À créer
-
+from django.contrib import messages
 @zone_add_required
 def ajouter_zone_risques(request):
     if request.method == 'POST':
         form = ZoneRisquesForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('cartographie')  # À adapter
+            messages.success(request, "Zone ajoutée avec succès.")
+            return redirect('cartographie')
     else:
         form = ZoneRisquesForm()
     return render(request, 'ajouter_zone_risques.html', {'form': form})
-
 
 @zone_view_required
 def getZones(request) :

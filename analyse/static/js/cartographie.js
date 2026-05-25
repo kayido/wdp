@@ -3,10 +3,17 @@ const MAP_CENTER = [48.7904, 2.4606];
 const TILE_URL = 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png';
 const TILE_OPTS = { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 };
 
+// const icon = L.icon({
+//     iconUrl: "https://img.icons8.com/color/48/high-priority.png",
+//     iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -28]
+// });
+
 const icon = L.icon({
-    iconUrl: "https://img.icons8.com/color/48/high-priority.png",
+    iconUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,4 2,28 30,28' fill='%23FFD700' stroke='%23B8860B' stroke-width='1.5' /%3E%3Ctext x='16' y='24' font-size='20' text-anchor='middle' fill='%238B5A00' font-weight='bold'%3E!%3C/text%3E%3C/svg%3E",
     iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -28]
 });
+
+
 
 const redalert = L.icon({
     iconUrl: "https://img.icons8.com/clouds/100/empty-trash.png",
