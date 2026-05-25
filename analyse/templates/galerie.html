@@ -6,226 +6,255 @@
     <title>Galerie d'Images</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap">
     <link rel="stylesheet" href="{% static 'analyse/galerie.css' %}">
-    <link rel="stylesheet" href="{% static "analyse/navbar.css" %}">
+    <link rel="stylesheet" href="{% static 'analyse/navbar.css' %}">
 </head>
 <body>
     {% include "components/navbar.html" %}
-  <div class="container">
-    <div class="header">
-      <h2>Galerie d'Images</h2>
-      <p>Parcourez toutes les images collectées avec leurs annotations et caractéristiques</p>
-      <div class="controls">
-        <input class="search-bar" placeholder="Rechercher par localisation...">
-        <select id="filter-annotation">
-          <option value="all">Toutes</option>
-          <option value="vide">Vide</option>
-          <option value="pleine">Pleine</option>
-        </select>
-      </div>
-    </div>
-    <div style="color:#6b7d93;font-size:1.04rem;margin-bottom:13px;">images trouvées</div>
-    <div class="image-gallery">
-    {% for img in images %}
-      <div class="image-card" data-modal="6">
-        <div class="image-thumb">
-          <img src="{{ img.image.url }}" alt="Image" ><br>
-          <div class="card-badge">
-            <span class="chip {% if img.annotation == 'pleine' %}chip-pleine{% else %}chip-vide{% endif %}">
-                {{ img.annotation }}
-            </span>
-          </div>
+    <div class="container">
+        <div class="header">
+            <h2>Galerie d'Images</h2>
+            <p>Parcourez toutes les images collectées avec leurs annotations et caractéristiques</p>
+            <div class="controls">
+                <input id="search-bar" class="search-bar" placeholder="Rechercher par nom ou localisation...">
+                <select id="filter-annotation">
+                    <option value="all">Toutes</option>
+                    <option value="vide">Vide</option>
+                    <option value="pleine">Pleine</option>
+                </select>
+            </div>
         </div>
-        <div class="card-info">
-          <div class="card-title">{{ img.nom_fichier }}</div>
-          <div class="card-meta"><span>{{ img.date_upload }}</span> · <span>{{ img.taille_ko }} Ko</span> · <span>{{ img.largeur }}x{{ img.hauteur }}</span></div>
-          <div class="card-meta"><span>Luminosité {{ img.luminance_moyenne }}</span> · <span>Contraste {{ img.contraste }}</span></div>
-          <div class="card-meta"><button> <a href="/img_analyse/{{ img.id }}"> Lancez une analyse approfondie </a> </button></div>
-          <div class="card-meta"><button> <a href="/update_annotation/{{ img.id }}" > Changer etiquette"</a> </button> </div>
 
+        <div id="gallery-count" style="color:#6b7d93;font-size:1.04rem;margin-bottom:13px;">Chargement…</div>
+
+        <div class="image-gallery" id="image-gallery">
+            {% for img in images %}
+            <div class="image-card" data-index="{{ forloop.counter0 }}" data-name="{{ img.nom_fichier|lower }}" data-annotation="{{ img.annotation }}">
+                <div class="image-thumb">
+                    <img src="{{ img.image.url }}" alt="{{ img.nom_fichier }}" loading="lazy">
+                    <div class="card-badge">
+                        <span class="chip {% if img.annotation == 'pleine' %}chip-pleine{% else %}chip-vide{% endif %}">
+                            {{ img.annotation }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <div class="card-title">{{ img.nom_fichier }}</div>
+                    <div class="card-meta">
+                        <span>{{ img.date_upload }}</span>
+                        <span class="sep">·</span>
+                        <span>{{ img.taille_ko }} Ko</span>
+                        <span class="sep">·</span>
+                        <span>{{ img.largeur }}×{{ img.hauteur }}</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>Luminosité {{ img.luminance_moyenne }}</span>
+                        <span class="sep">·</span>
+                        <span>Contraste {{ img.contraste }}</span>
+                    </div>
+                    <div class="card-actions">
+                        <a class="btn btn-primary" href="/img_analyse/{{ img.id }}" onclick="event.stopPropagation()">Analyse approfondie</a>
+                        <a class="btn btn-secondary" href="/update_annotation/{{ img.id }}" onclick="event.stopPropagation()">Changer étiquette</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-      </div>
-      {% endfor %}
+
+        <div class="pagination">
+            {% if images.has_previous %}
+                <a href="?page=1">Début</a>
+                <a href="?page={{ images.previous_page_number }}">Précédent</a>
+            {% endif %}
+            <span class="current">Page {{ images.number }} sur {{ images.paginator.num_pages }}</span>
+            {% if images.has_next %}
+                <a href="?page={{ images.next_page_number }}">Suivant</a>
+                <a href="?page={{ images.paginator.num_pages }}">Fin</a>
+            {% endif %}
+        </div>
     </div>
-     <div class="pagination">
-        {% if images.has_previous %}
-            <a href="?page=1" onclick="">Début</a>
-            <a href="?page={{ images.previous_page_number }}">Précédent</a>
-        {% endif %}
- 
-        <span class="current">Page {{ images.number }} sur {{ images.paginator.num_pages }}</span>
- 
-        {% if images.has_next %}
-            <a href="?page={{ images.next_page_number }}">Suivant</a>
-            <a href="?page={{ images.paginator.num_pages }}">Fin</a>
-        {% endif %}
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose" aria-label="Fermer">&times;</button>
+
+            <button class="modal-nav modal-prev" id="modalPrev" aria-label="Précédent">&#8249;</button>
+            <button class="modal-nav modal-next" id="modalNext" aria-label="Suivant">&#8250;</button>
+
+            <div class="modal-left">
+                <div class="modal-title" id="modalTitle"></div>
+                <div class="modal-date" id="modalDate"></div>
+                <div class="modal-image-area">
+                    <img src="" id="modal-image" alt="">
+                </div>
+            </div>
+            <div class="modal-right">
+                <div>
+                    <span class="modal-section-title">Classification</span>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+                        <span class="chip chip-vide" id="modalClass"></span>
+                    </div>
+                </div>
+                <div>
+                    <span class="modal-section-title">Caractéristiques</span>
+                    <div class="modal-row">
+                        <span class="modal-label">Taille</span><span id="modalSize"></span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Dimensions</span><span id="modalDim"></span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Luminosité</span><span id="modalLum"></span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Contraste</span><span id="modalCont"></span>
+                    </div>
+                </div>
+                <div>
+                    <span class="modal-section-title">Couleur Moyenne</span>
+                    <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+                        <span class="modal-color" id="modalColor"></span>
+                        <span>
+                            R: <span id="modalR"></span><br>
+                            G: <span id="modalG"></span><br>
+                            B: <span id="modalB"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-meta">
+                    <div><span class="meta-label">Date d'upload :</span> <span id="modalMetaDate"></span></div>
+                    <div><span class="meta-label">Localisation :</span> <span id="modalMetaLoc"></span></div>
+                    <div><span class="meta-label">ID :</span> <span id="modalMetaID"></span></div>
+                </div>
+            </div>
+        </div>
     </div>
-   
-  </div>
-  <!-- Modal -->
-  <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose" aria-label="Fermer">&times;</button>
-      <div class="modal-left">
-        <div class="modal-title" id="modalTitle">Avenue des Champs-Élysées</div>
-        <div class="modal-date" id="modalDate">Analysée le 2024-01-15 13:45</div>
-        <div class="modal-image-area">
-          <!-- <svg width="92" height="92" fill="none"><circle cx="46" cy="46" r="44" stroke="#bfc6d3" stroke-width="2"/><rect x="32" y="32" width="28" height="28" rx="3" stroke="#bfc6d3" stroke-width="2"/><path d="M32 60l14-14 14 14" stroke="#bfc6d3" stroke-width="2"/></svg> -->
-            <img src="" id="modal-image">
-        </div>
-      </div>
-      <div class="modal-right">
-        <div>
-          <span class="modal-section-title">Classification</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="chip chip-vide" id="modalClass">vide</span>
-          </div>
-        </div>
-        <div>
-          <span class="modal-section-title">Caractéristiques</span>
-          <div class="modal-row">
-            <span class="modal-label">Taille du fichier</span> <span id="modalSize">1.8 MB</span>
-            <span class="modal-label">Dimensions</span> <span id="modalDim">1920×1080</span>
-          </div>
-          <div class="modal-row">
-            <span class="modal-label">Luminosité</span> <span id="modalLum">82%</span>
-            <span class="modal-label">Contraste</span> <span id="modalCont">71%</span>
-          </div>
-        </div>
-        <div>
-          <span class="modal-section-title">Couleur Moyenne</span>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span class="modal-color" id="modalColor" style="background:#627386;"></span>
-            <span>
-              R: <span id="modalR">98</span><br>
-              G: <span id="modalG">115</span><br>
-              B: <span id="modalB">132</span>
-            </span>
-          </div>
-        </div>
-        <div class="modal-meta">
-          <div><span class="meta-label">Date d'upload:</span> <span id="modalMetaDate">2024-01-15 13:45</span></div>
-          <div><span class="meta-label">Localisation:</span> <span id="modalMetaLoc">Avenue des Champs-Élysées</span></div>
-          <div><span class="meta-label">ID de l'image:</span> <span id="modalMetaID">#2</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script>
-  const modalData = []
-  const params = new URLSearchParams(window.location.search);
-  const page = params.get('page') || 1;
- 
-  fetch(`/galerie/data/?page=${page}`)
-    .then(res => res.json())
-    .then(data => {
-      data.forEach((element, index) => {
-        const dim = `${element.largeur}×${element.hauteur}`;
-        const moyenneRGB = Math.round((element.r_moyen + element.v_moyen + element.b_moyen) / 3);
-        const contraste = element.contraste !== null ? Math.round(element.contraste) : 'N/A';
-        const colorCSS = `rgb(${element.r_moyen}, ${element.v_moyen}, ${element.b_moyen})`;
- 
-        modalData.push({
-          title: element.nom_fichier,
-          image: element.image_url,
-          date: `Analysée le ${element.date_upload}`,
-          class: element.annotation,
-          size: (element.taille_ko / 1024).toFixed(2) + " MB",
-          dim: dim,
-          lum: moyenneRGB + "%",
-          cont: contraste + "%",
-          color: colorCSS,
-          R: element.r_moyen,
-          G: element.v_moyen,
-          B: element.b_moyen,
-          metaDate: element.date_upload,
-          metaLoc: element.adresse,
-          metaID: "#" + element.id
+
+    <script>
+    (() => {
+        let modalData = [];
+        let currentIndex = 0;
+
+        const gallery      = document.getElementById('image-gallery');
+        const countEl      = document.getElementById('gallery-count');
+        const backdrop     = document.getElementById('modalBackdrop');
+        const modalClose   = document.getElementById('modalClose');
+        const modalPrev    = document.getElementById('modalPrev');
+        const modalNext    = document.getElementById('modalNext');
+        const searchBar    = document.getElementById('search-bar');
+        const filterSelect = document.getElementById('filter-annotation');
+
+        const page = new URLSearchParams(window.location.search).get('page') || 1;
+
+        fetch(`/galerie/data/?page=${page}`)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                modalData = data.map(el => ({
+                    title:    el.nom_fichier,
+                    image:    el.image_url,
+                    date:    `Analysée le ${el.date_upload}`,
+                    class:    el.annotation,
+                    size:    (el.taille_ko / 1024).toFixed(2) + ' MB',
+                    dim:     `${el.largeur}×${el.hauteur}`,
+                    lum:      Math.round((el.r_moyen + el.v_moyen + el.b_moyen) / 3) + '%',
+                    cont:     el.contraste !== null ? Math.round(el.contraste) + '%' : 'N/A',
+                    color:   `rgb(${el.r_moyen}, ${el.v_moyen}, ${el.b_moyen})`,
+                    R:        el.r_moyen,
+                    G:        el.v_moyen,
+                    B:        el.b_moyen,
+                    metaDate: el.date_upload,
+                    metaLoc:  el.adresse ?? '—',
+                    metaID:  `#${el.id}`,
+                }));
+                countEl.textContent = `${modalData.length} image(s) trouvée(s)`;
+            })
+            .catch(err => {
+                countEl.textContent = 'Erreur de chargement des données.';
+                console.error('Galerie fetch error:', err);
+            });
+
+        gallery.addEventListener('click', e => {
+            const card = e.target.closest('.image-card');
+            if (!card || e.target.closest('.card-actions')) return;
+            const idx = parseInt(card.dataset.index, 10);
+            if (!isNaN(idx) && modalData[idx]) openModal(idx);
         });
 
- 
-        // Activer clic sur carte (à ce moment uniquement)
-        const card = document.querySelectorAll('.image-card')[index];
-        if (card) {
-          card.addEventListener('click', () => {
-            fillModal(index);
-            modalBackdrop.classList.add('active');
+        function openModal(index) {
+            currentIndex = index;
+            fillModal(modalData[index]);
+            backdrop.classList.add('active');
             document.body.style.overflow = 'hidden';
-          });
+            updateNavButtons();
         }
-      });
-    });
- 
-  // DOM elements
-  const modalBackdrop = document.getElementById('modalBackdrop');
-  const modalClose = document.getElementById('modalClose');
- 
-  // Remplir la modale
-  function fillModal(index) {
-    const data = modalData[index];
-    document.getElementById('modalTitle').textContent = data.title;
-    document.getElementById('modalDate').textContent = data.date;
-    document.getElementById("modal-image").src = data.image;
-    document.getElementById('modalClass').textContent = data.class;
-    document.getElementById('modalClass').className = 'chip ' + (data.class === 'pleine' ? 'chip-pleine' : 'chip-vide');
-    document.getElementById('modalSize').textContent = data.size;
-    document.getElementById('modalDim').textContent = data.dim;
-    document.getElementById('modalLum').textContent = data.lum;
-    document.getElementById('modalCont').textContent = data.cont;
-    document.getElementById('modalColor').style.background = data.color;
-    document.getElementById('modalR').textContent = data.R;
-    document.getElementById('modalG').textContent = data.G;
-    document.getElementById('modalB').textContent = data.B;
-    document.getElementById('modalMetaDate').textContent = data.metaDate;
-    document.getElementById('modalMetaLoc').textContent = data.metaLoc;
-    document.getElementById('modalMetaID').textContent = data.metaID;
 
-  }
- 
-  // Fermer la modale
-  function closeModal() {
-    modalBackdrop.classList.remove('active');
-    document.body.style.overflow = '';
-  }
- 
-  modalClose.addEventListener('click', closeModal);
-  modalBackdrop.addEventListener('click', (e) => {
-    if (e.target === modalBackdrop) closeModal();
-  });
- 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
-  });
- 
-  fetch(`/galerie/data/?page=${page}`)
-    .then(res => res.json())
-    .then(data => {
-     console.log(data)    
-    })
- 
-  document.getElementById('filter-annotation').addEventListener('change', function() {
-    const value = this.value;
-    let url = new URL(window.location.href);
-    if (value === 'all') {
-        url.searchParams.delete('filtre');
-    } else {
-        url.searchParams.set('filtre', value);
-    }
-    url.searchParams.delete('page'); // reset page to 1 on filter change
-    window.location.href = url.toString();
-  });
+        function closeModal() {
+            backdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
 
-</script>
-<style>
-.pagination .current {
-    background: #2da873 !important;
-    color: white !important;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #2da873;
-    display: inline-block;
-}
-</style>
- 
+        function fillModal(d) {
+            document.getElementById('modalTitle').textContent    = d.title;
+            document.getElementById('modalDate').textContent     = d.date;
+            document.getElementById('modal-image').src           = d.image;
+            document.getElementById('modal-image').alt           = d.title;
+            const chip = document.getElementById('modalClass');
+            chip.textContent = d.class;
+            chip.className   = 'chip ' + (d.class === 'pleine' ? 'chip-pleine' : 'chip-vide');
+            document.getElementById('modalSize').textContent     = d.size;
+            document.getElementById('modalDim').textContent      = d.dim;
+            document.getElementById('modalLum').textContent      = d.lum;
+            document.getElementById('modalCont').textContent     = d.cont;
+            document.getElementById('modalColor').style.background = d.color;
+            document.getElementById('modalR').textContent        = d.R;
+            document.getElementById('modalG').textContent        = d.G;
+            document.getElementById('modalB').textContent        = d.B;
+            document.getElementById('modalMetaDate').textContent = d.metaDate;
+            document.getElementById('modalMetaLoc').textContent  = d.metaLoc;
+            document.getElementById('modalMetaID').textContent   = d.metaID;
+        }
+
+        function updateNavButtons() {
+            modalPrev.style.display = currentIndex > 0 ? 'flex' : 'none';
+            modalNext.style.display = currentIndex < modalData.length - 1 ? 'flex' : 'none';
+        }
+
+        modalPrev.addEventListener('click', () => { if (currentIndex > 0) openModal(currentIndex - 1); });
+        modalNext.addEventListener('click', () => { if (currentIndex < modalData.length - 1) openModal(currentIndex + 1); });
+
+        modalClose.addEventListener('click', closeModal);
+        backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+        document.addEventListener('keydown', e => {
+            if (!backdrop.classList.contains('active')) return;
+            if (e.key === 'Escape')     closeModal();
+            if (e.key === 'ArrowLeft')  modalPrev.click();
+            if (e.key === 'ArrowRight') modalNext.click();
+        });
+
+        filterSelect.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            if (this.value === 'all') url.searchParams.delete('filtre');
+            else url.searchParams.set('filtre', this.value);
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
+        });
+
+        searchBar.addEventListener('input', function () {
+            const q = this.value.toLowerCase().trim();
+            const cards = gallery.querySelectorAll('.image-card');
+            let visible = 0;
+            cards.forEach(card => {
+                const show = !q || (card.dataset.name ?? '').includes(q);
+                card.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            countEl.textContent = `${visible} image(s) trouvée(s)`;
+        });
+    })();
+    </script>
 </body>
 </html>
- 
