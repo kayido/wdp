@@ -1,70 +1,149 @@
 {% load static %}
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Ajouter un Signalement</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
-    <link rel="stylesheet" href="{% static "analyse/zonesRisques.css" %}"
+    <title>Ajouter une Zone à Risque</title>
+    <link rel="stylesheet" href="{% static 'analyse/zonesRisques.css' %}">
+    <style>
+        .adresse-wrapper { position: relative; }
+        .field-error { color: #e94553; font-size: 0.9rem; margin-top: 4px; display: block; }
+        .alert { padding: 12px 16px; border-radius: 7px; margin-bottom: 16px; font-weight: 500; }
+        .alert-success { background: #e6f9ec; color: #2a7a3b; border: 1px solid #b6e8c2; }
+        .alert-error { background: #fdecea; color: #b71c1c; border: 1px solid #f5c6c6; }
+        #suggestions li.active { background: #e0ecff; }
+    </style>
 </head>
 <body>
     <div class="container">
-        
-        <form method="post" enctype="multipart/form-data">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
             {% csrf_token %}
-            <h2>Ajouter une Zone à surveillez</h2>
-            {{ form.as_p }}
-            <ul id="suggestions" style="display:none;"></ul>
+            <h2>Ajouter une Zone à surveiller</h2>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form.visible_fields %}
+                <p>
+                    {{ field.label_tag }}
+                    {% if field.name == 'adresse' %}
+                        <div class="adresse-wrapper">
+                            {{ field }}
+                            <ul id="suggestions" style="display:none;"></ul>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.errors %}
+                        <span class="field-error">{{ field.errors|join:", " }}</span>
+                    {% endif %}
+                </p>
+            {% endfor %}
+
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+
             <button type="submit" class="btn">Enregistrer</button>
         </form>
     </div>
-    
 
-    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-    // On attend que le DOM soit chargé
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const adresseInput = document.querySelector('input[name="adresse"]');
         const suggestionsBox = document.getElementById('suggestions');
-        const longitudeInput = document.querySelector('input[name="longitude"]')
-        const latitudeInput = document.querySelector('input[name="latitude"]')
+        const latitudeInput = document.querySelector('input[name="latitude"]');
+        const longitudeInput = document.querySelector('input[name="longitude"]');
 
-        longitudeInput.type="text"
-        latitudeInput.type="text"
-        adresseInput.addEventListener('input', async function() {
-            const query = adresseInput.value;
-            if (query.length > 10) {
-                // Appel à Nominatim (OpenStreetMap) pour autocomplétion
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`)
-                    .then(response => response.json())
-                    .then(data => {
-                        suggestionsBox.innerHTML = "";
-                        if (data.length > 0) {
-                            suggestionsBox.style.display = "block";
-                            data.forEach(item => {
-                                const li = document.createElement('li');
-                                li.textContent = item.display_name;
-                                li.dataset.lat = item.lat;
-                                li.dataset.lon = item.lon;
-                                li.onclick = function() {
-                                    adresseInput.value = item.display_name;
-                                    document.querySelector('input[name="latitude"]').value = item.lat;
-                                    document.querySelector('input[name="longitude"]').value = item.lon;
-                                    suggestionsBox.style.display = "none";
-                                };
-                                suggestionsBox.appendChild(li);
-                            });
-                        } else {
-                            suggestionsBox.style.display = "none";
-                        }
-                    });
-            } else {
-                suggestionsBox.style.display = "none";
+        let debounceTimer = null;
+        let activeIndex = -1;
+
+        adresseInput.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            activeIndex = -1;
+            const query = adresseInput.value.trim();
+
+            if (query.length < 3) {
+                hideSuggestions();
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`,
+                        { headers: { 'Accept-Language': 'fr' } }
+                    );
+                    const data = await res.json();
+                    renderSuggestions(data);
+                } catch {
+                    hideSuggestions();
+                }
+            }, 300);
+        });
+
+        function renderSuggestions(data) {
+            suggestionsBox.innerHTML = '';
+            if (!data.length) { hideSuggestions(); return; }
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.display_name;
+                li.dataset.lat = item.lat;
+                li.dataset.lon = item.lon;
+                li.addEventListener('mousedown', () => selectSuggestion(li));
+                suggestionsBox.appendChild(li);
+            });
+            suggestionsBox.style.display = 'block';
+        }
+
+        function selectSuggestion(li) {
+            adresseInput.value = li.textContent;
+            latitudeInput.value = li.dataset.lat;
+            longitudeInput.value = li.dataset.lon;
+            hideSuggestions();
+        }
+
+        function hideSuggestions() {
+            suggestionsBox.style.display = 'none';
+            suggestionsBox.innerHTML = '';
+            activeIndex = -1;
+        }
+
+        adresseInput.addEventListener('keydown', function (e) {
+            const items = suggestionsBox.querySelectorAll('li');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActive(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActive(items);
+            } else if (e.key === 'Enter' && activeIndex >= 0) {
+                e.preventDefault();
+                selectSuggestion(items[activeIndex]);
+            } else if (e.key === 'Escape') {
+                hideSuggestions();
             }
         });
-        // Fermer suggestions si clic ailleurs
-        document.addEventListener('click', function(event) {
-            if (!adresseInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
-                suggestionsBox.style.display = "none";
+
+        function updateActive(items) {
+            items.forEach((li, i) => li.classList.toggle('active', i === activeIndex));
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!adresseInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                hideSuggestions();
             }
         });
     });

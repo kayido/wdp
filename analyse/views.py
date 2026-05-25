@@ -12,7 +12,6 @@ from .access import (
     zone_add_required,
     zone_view_required,
 )
-from analyse.règles_classification import classification_par_regles
 from .forms import UploadForm, ClassificationDefineForm
 from .models import Image, Signalement, User
 from PIL import Image as PILImage
@@ -35,6 +34,14 @@ from io import BytesIO
 from django.core.files.base import ContentFile
 from .ML import extract_features, classify_trash_can, load_image
 
+# views.py
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def carte_view(request):
+    session_key = request.session.session_key
+    streamlit_url = f"http://localhost:8501/?session_key={session_key}"
+    return redirect(streamlit_url)
 
 def get_signalement_user(request):
     if request.user.is_authenticated:
@@ -278,7 +285,7 @@ def zone_5_view(request):
     # Tri en ordre croissant selon l'âge
     data_triees = sorted(data_unique, key=lambda p: p["occur"])
     
-    return JsonResponse(data_triees[:6:-1], safe=False)
+    return JsonResponse(data_triees[:7:-1], safe=False)
 
 from .models import ClassificationDefine
 
@@ -396,18 +403,18 @@ def analyse_avances_view (request,filename) :
 
 from .models import ZoneRisques
 from .forms import ZoneRisquesForm  # À créer
-
+from django.contrib import messages
 @zone_add_required
 def ajouter_zone_risques(request):
     if request.method == 'POST':
         form = ZoneRisquesForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('cartographie')  # À adapter
+            messages.success(request, "Zone ajoutée avec succès.")
+            return redirect('cartographie')
     else:
         form = ZoneRisquesForm()
     return render(request, 'ajouter_zone_risques.html', {'form': form})
-
 
 @zone_view_required
 def getZones(request) :
