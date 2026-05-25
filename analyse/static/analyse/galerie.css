@@ -306,7 +306,7 @@ body {
 
 .pagination .current {
     font-weight: bold;
-    background-color: #2da873; /* vert Trashero */
+    background-color: #2da873; /* vert Binview */
     color: white;
     border-color: #2da873;
 }
