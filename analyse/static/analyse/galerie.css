@@ -307,9 +307,15 @@ body {
 }
 .pagination a:hover { background: #f0f2f5; border-color: #c0c8d2; }
 .pagination .current {
+<<<<<<<<< Temporary merge branch 1
     font-weight: bold;
-    background-color: #2da873; /* vert Trashero */
+    background-color: #2da873; /* vert Binview */
     color: white;
+=========
+    font-weight: 700;
+    background: #2da873;
+    color: #fff;
+>>>>>>>>> Temporary merge branch 2
     border-color: #2da873;
 }
 
