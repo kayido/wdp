@@ -283,9 +283,9 @@ def zone_5_view(request):
         data_unique[i]["occur"] = k   
 
     # Tri en ordre croissant selon l'âge
-    data_triees = sorted(data_unique, key=lambda p: p["occur"])
+    data_triees = sorted(data_unique, key=lambda p: p["occur"], reverse=True)
     
-    return JsonResponse(data_triees[:7:-1], safe=False)
+    return JsonResponse(data_triees[:5], safe=False)
 
 from .models import ClassificationDefine
 
